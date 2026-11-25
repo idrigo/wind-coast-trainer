@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Ветер у берега</title>
+<title>Метеорология для яхтсменов</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="Курс по местным ветрам и прогнозу погоды для капитанов: главы со схемами и тренажёрами на вымышленной бухте">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -405,13 +405,14 @@ footer.foot { max-width: var(--measure); margin: 0 auto; padding: 0 16px 32px; f
   .cover-code figcaption { justify-items: start; }
   .cover-qr { width: 180px; }
 }
+@media (max-width: 520px) { .brand-tail { display: none; } }
 
 </style>
 </head>
 <body>
 <header class="top">
   <div class="top-inner">
-    <a class="brand" href="#cover">Ветер у берега</a>
+    <a class="brand" href="#cover">Метеорология<span class="brand-tail"> для яхтсменов</span></a>
     <div id="nav" class="top-nav"></div>
   </div>
 </header>
@@ -5343,8 +5344,8 @@ globalThis.CHAPTERS = {
     qr.append(document.getElementById('qr-svg').content.cloneNode(true));
     const sec = el('section', { class: 'cover', id: 'view-cover' },
       el('div', { class: 'cover-text' },
-        el('h1', { class: 'cover-title' }, 'Ветер у\u00a0берега'),
-        el('p', { class: 'cover-lead' }, UI.typo('Местные ветры и прогноз погоды для капитанов. Тренажёр к\u00a0лекции «Прогноз погоды».')),
+        el('h1', { class: 'cover-title' }, 'Метеорология для\u00a0яхтсменов'),
+        el('p', { class: 'cover-lead' }, UI.typo('Местные ветры, фронты и чтение прогноза. Тренажёр к\u00a0лекции «Прогноз погоды».')),
         el('a', { class: 'btn primary cover-start', href: `#${ITEMS[0].id}` }, `Глава 1. ${ITEMS[0].label}`)),
       el('figure', { class: 'cover-code' }, qr,
         el('figcaption', {}, el('span', {}, 'Открыть на телефоне'), el('a', { href: SITE }, SITE.replace('https://', '').replace(/\/$/, '')))));

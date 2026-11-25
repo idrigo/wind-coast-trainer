@@ -113,7 +113,8 @@ main#main { padding: 0 max(16px, env(safe-area-inset-right, 0px)) 48px max(16px,
 /* Controls sit directly under the caption, in a row on wide screens. */
 .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px 28px; padding: 16px 0 4px; align-items: end; }
 .ctl { display: grid; gap: 6px; min-width: 0; }
-.ctl-row { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.ctl-row { display: flex; justify-content: space-between; gap: 10px; align-items: last baseline; }
+.controls > .btn { justify-self: start; align-self: end; }
 .ctl-label { font-size: 14px; color: var(--muted); }
 .ctl-value { font-weight: 600; font-size: 15px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 input[type="range"] { width: 100%; accent-color: var(--accent); height: 26px; margin: 0; }
@@ -153,7 +154,9 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 26px; ma
 .video-link { border-top: 1px solid var(--rule); padding-top: 14px; }
 .video-link figcaption { font-size: 15px; color: var(--ink); margin: 0; }
 .services h3 { font: 600 15px/1.3 var(--f-ui); margin: 0 0 8px; }
-.services ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; }
+.services .svc-list { margin: 0 0 10px; display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; }
+.services .svc-list dt, .services .svc-list dd { margin: 0; }
+@media (max-width: 560px) { .services .svc-list { grid-template-columns: 1fr; gap: 2px; } .services .svc-list dd { margin-bottom: 8px; } }
 .services a { font-weight: 600; }
 
 .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--rule); }
@@ -237,7 +240,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 26px; ma
 .chart-links a { font-weight: 600; }
 .lg-p90::before { border-color: var(--warn); }
 .lg-truth::before { border-color: var(--accent); border-top-width: 3px; }
-.lg-truthg::before { border-color: var(--accent); border-top-width: 1px; }
+.lg-truthg::before { border-color: var(--accent); border-top-width: 2px; border-top-style: dotted; }
 .lg-dot::before { border-color: var(--ink); border-top-style: dotted; }
 .lg-limit::before { border-color: var(--danger); border-top-style: dashed; }
 .lg-t8::before { border-color: var(--truth); border-top-width: 3px; }
@@ -271,7 +274,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 26px; ma
 .card { text-align: left; border: 1px solid var(--rule); background: var(--field); padding: 14px 16px; cursor: pointer; display: grid; gap: 4px; border-radius: 3px; }
 .card:hover { border-color: var(--accent); }
 .card-title { font: 600 20px/1.2 var(--f-text); }
-.card-sub { font-size: 14px; color: var(--accent); }
+.card-sub { font-size: 14px; color: var(--muted); }
 .card-text { font-size: 15px; color: var(--muted); }
 .brief-grid { display: grid; gap: 10px; }
 .sketch { width: 100%; display: block; border: 1px solid var(--rule); }
@@ -315,6 +318,8 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 26px; ma
 .barb-key { width: 100%; max-width: 380px; height: auto; aspect-ratio: 380 / 75; }
 .glossary { margin: 0; display: grid; grid-template-columns: minmax(0, 11em) minmax(0, 1fr); gap: 8px 16px; font-size: 15px; }
 .glossary dt { font-weight: 600; } .glossary dd { margin: 0; }
+.ref-gloss { margin-top: 36px; display: grid; gap: 10px; }
+@media (min-width: 900px) { .ref-gloss .glossary { grid-template-columns: minmax(0, 12em) minmax(0, 1fr) minmax(0, 12em) minmax(0, 1fr); gap: 10px 20px; } }
 
 footer.foot { max-width: var(--measure); margin: 0 auto; padding: 0 16px 32px; font-size: 13px; color: var(--muted); }
 
@@ -338,7 +343,7 @@ footer.foot { max-width: var(--measure); margin: 0 auto; padding: 0 16px 32px; f
   .toc nav { position: fixed; left: 12px; right: 12px; width: auto; top: calc(env(safe-area-inset-top, 0px) + 58px); max-height: calc(100vh - 80px); }
   .brand { font-size: 17px; }
   .pager { grid-template-columns: minmax(0, 1fr); }
-  .pg-next { text-align: left; order: -1; }
+  .pg-next { text-align: left; }
   .glossary { grid-template-columns: minmax(0, 1fr); }
   .glossary dd { margin-bottom: 6px; }
   .lbl-press { font-size: 26px; }
@@ -377,6 +382,12 @@ footer.foot { max-width: var(--measure); margin: 0 auto; padding: 0 16px 32px; f
 .fc-tools > *, .final-panel > *, .final-body > * { min-width: 0; }
 .fc-table th { z-index: 1; }
 .stepper li .step-btn::after { content: none; }
+.video + .key { margin-top: 28px; }
+
+.final-intro summary { cursor: pointer; font: 500 15px/1.4 var(--f-ui); color: var(--accent); margin-bottom: 8px; }
+.final-intro[open] summary { display: none; }
+.chk-many { font-weight: 400; color: var(--muted); }
+@media (min-width: 700px) { .controls .ctl-wide { grid-column: span 2; } }
 
 </style>
 </head>
@@ -1180,7 +1191,8 @@ globalThis.ALLOW_EMBED = true;
         wrap.append(b);
       }
       set(value);
-      return el('div', { class: 'ctl' }, el('div', { class: 'ctl-label' }, def.label), wrap);
+      const wide = def.options.map((o) => String(o[1])).join('').length > 24; // long option set: give it two grid columns
+      return el('div', { class: wide ? 'ctl ctl-wide' : 'ctl' }, el('div', { class: 'ctl-label' }, def.label), wrap);
     }
     if (def.type === 'button') {
       return el('button', { type: 'button', class: 'btn', onclick: () => onChange() }, def.label);
@@ -1264,7 +1276,9 @@ globalThis.ALLOW_EMBED = true;
     }
     for (let x = Math.ceil(o.x0 / o.xstep) * o.xstep; x <= o.x1 + 1e-6; x += o.xstep) {
       c.beginPath(); c.moveTo(X(x), T); c.lineTo(X(x), h - B); c.stroke();
-      c.textAlign = 'center'; c.fillText(o.xfmt ? o.xfmt(x) : String(x), X(x), h - B + 15);
+      const lab = o.xfmt ? o.xfmt(x) : String(x), half = c.measureText(lab).width / 2;
+      // Keep edge labels inside the canvas instead of cutting them.
+      if (X(x) + half > w - 1) { c.textAlign = 'right'; c.fillText(lab, w - 1, h - B + 15); } else { c.textAlign = 'center'; c.fillText(lab, X(x), h - B + 15); }
     }
     c.save(); c.beginPath(); c.rect(L, T, w - L - R, h - T - B); c.clip();
     for (const b of o.bands || []) {
@@ -1296,7 +1310,13 @@ globalThis.ALLOW_EMBED = true;
     if (o.ylabel) { c.fillStyle = css('--muted'); c.textAlign = 'left'; c.fillText(o.ylabel, L + 4, T + 10); }
   }
 
-  globalThis.UI = { el, fmtTime, fmtNum, fmtDir, control, Readout, chart, bfWord };
+  // Russian plural form for an integer: plural(3, 'миля', 'мили', 'миль').
+  function plural(v, one, few, many) { const n = Math.abs(Math.round(v)), d = n % 10, dd = n % 100; return dd >= 11 && dd <= 14 ? many : d === 1 ? one : d >= 2 && d <= 4 ? few : many; }
+  // Keep numbers with their units and ranges on one line: "100 м", "1–7 км", "за 3 ч", "Swiss HD".
+  const typo = (t) => (typeof t === 'string'
+    ? t.replace(/(\d) (?=[^\s\d])/g, '$1\u00a0').replace(/(\d)–(?=\d)/g, '$1\u2060–\u2060').replace(/Swiss HD/g, 'Swiss\u00a0HD').replace(/ (—|−) /g, '\u00a0$1 ')
+    : t);
+  globalThis.UI = { el, fmtTime, fmtNum, fmtDir, control, Readout, chart, bfWord, plural, typo };
 })();
 
 // 3D relief model of the bay (Three.js r128): terrain diorama, water coloured by wind speed with a crisp
@@ -1608,7 +1628,7 @@ globalThis.ALLOW_EMBED = true;
       this.fx = new THREE.Group(); scene.add(this.fx);
       this.anim = [];
 
-      const N = COARSE ? 900 : 2000, L = COARSE ? 7 : 10;
+      const N = COARSE ? 550 : 1100, L = COARSE ? 7 : 10;
       this.P = { N, L, x: new Float32Array(N), y: new Float32Array(N), age: new Float32Array(N), life: new Float32Array(N), land: new Uint8Array(N), hist: new Float32Array(N * L * 3) };
       const pg = new THREE.BufferGeometry();
       this.pPos = new Float32Array(N * (L - 1) * 2 * 3);
@@ -2193,7 +2213,7 @@ globalThis.ALLOW_EMBED = true;
     _spawn(i, randomAge) {
       const P = this.P;
       let x = 0, y = 0;
-      for (let k = 0; k < 6; k++) { x = Math.random() * W; y = Math.random() * H; if (!Bay.isLand(x, y) || Math.random() < 0.3) break; } // about 70 % over water
+      for (let k = 0; k < 12; k++) { x = Math.random() * W; y = Math.random() * H; if (!Bay.isLand(x, y) || Math.random() < 0.1) break; } // mostly over water
       P.x[i] = x; P.y[i] = y; P.age[i] = randomAge ? Math.random() * 40 : 0; P.life[i] = 35 + Math.random() * 30;
       P.land[i] = Bay.isLand(x, y);
       const h = surf(x, y) + 0.1, base = i * P.L * 3;
@@ -2210,10 +2230,10 @@ globalThis.ALLOW_EMBED = true;
         let u = s[0], v = s[1];
         if (push) {
           if (s[3]) { const a = (Math.random() - 0.5) * 2.4, cu = Math.cos(a), su = Math.sin(a); const uu = u * cu - v * su; v = u * su + v * cu; u = uu; }
-          const sp = s[2], boost = sp > 0.1 && sp < 8 ? Math.sqrt(8 / sp) : 1, k = 0.011 * boost;
+          const sp = s[2], boost = sp > 0.1 && sp < 4 ? Math.sqrt(4 / sp) : 1, k = 0.011 * boost;
           const x1 = P.x[i] + u * k, y1 = P.y[i] + v * k;
           P.age[i] += 1;
-          if (P.age[i] > P.life[i] || x1 < 0 || y1 < 0 || x1 > W || y1 > H || sp < 0.4) this._spawn(i, false);
+          if (P.age[i] > P.life[i] || x1 < 0 || y1 < 0 || x1 > W || y1 > H || sp < 1 || (Bay.isLand(x1, y1) && sp < 12)) this._spawn(i, false);
           else {
             P.x[i] = x1; P.y[i] = y1;
             const base = i * L * 3;
@@ -2229,7 +2249,9 @@ globalThis.ALLOW_EMBED = true;
           const rgb = P.land[i] ? [190, 185, 170] : Draw.speedRGB(s[2]), lum = (0.3 * rgb[0] + 0.59 * rgb[1] + 0.11 * rgb[2]) / 255;
           if (lum > 0.45) { cr = 0.06; cg = 0.13; cb = 0.24; }
         }
-        const fade = Math.min(1, P.age[i] / 4) * Math.min(1, (P.life[i] - P.age[i]) / 6) * (P.land[i] ? 0.7 : 1);
+        // Streaks fade out in light wind, so calm water reads as calm; they stay thin over land.
+        const strength = Math.min(1, Math.max(0, (s[2] - 1) / 9));
+        const fade = Math.min(1, P.age[i] / 4) * Math.min(1, (P.life[i] - P.age[i]) / 6) * (P.land[i] ? 0.35 : 1) * (night ? 0.35 : 0.65) * strength;
         for (let s2 = 0; s2 < L - 1; s2++) {
           const o = (i * (L - 1) + s2) * 6, hb = (i * L + s2) * 3;
           pos[o] = hist[hb]; pos[o + 1] = hist[hb + 1]; pos[o + 2] = hist[hb + 2];
@@ -2253,7 +2275,10 @@ globalThis.ALLOW_EMBED = true;
       if (this._wPainted !== (this.w < 560)) { this._wPainted = this.w < 560; if (this.fn) this._paintWater(); }
       if (this._tween) this._tween(now);
       if (this.follow && this._yacht && !REDUCED) {
-        const tx = Math.max(-W / 2 + 9, Math.min(W / 2 - 9, X(this._yacht.x))), tz = Math.max(-H / 2 + 6, Math.min(H / 2 - 6, Z(this._yacht.y)));
+        // Follow the yacht, but never pan so far that the view shows empty space beyond the map edge.
+        const dist = this.camera.position.distanceTo(this.controls.target), hh = dist * Math.tan((this.camera.fov * Math.PI) / 360), hw = hh * this.camera.aspect;
+        const mx = Math.max(0, W / 2 - hw), mz = Math.max(0, H / 2 - hh);
+        const tx = Math.max(-mx, Math.min(mx, X(this._yacht.x))), tz = Math.max(-mz, Math.min(mz, Z(this._yacht.y)));
         const d = new THREE.Vector3(tx, this.controls.target.y, tz).sub(this.controls.target).multiplyScalar(0.04);
         this.controls.target.add(d); this.camera.position.add(d);
       }
@@ -2500,7 +2525,10 @@ globalThis.ALLOW_EMBED = true;
       c.strokeStyle = lv === 1012 ? 'rgba(40,55,80,0.65)' : 'rgba(40,55,80,0.42)'; c.lineWidth = lv % 8 === 0 ? 1.6 : 1.1;
       c.beginPath(); for (const [a, b] of seg) { c.moveTo(a[0], a[1]); c.lineTo(b[0], b[1]); } c.stroke();
       const s0 = seg[Math.floor(seg.length * 0.37)][0];
-      const nearC = [F.Lc, F.Hc].some((C0) => Math.hypot(s0[0] - X(C0.x), s0[1] - Y(C0.y)) < 46);
+      // Skip labels next to the centres, the fronts and the observer, so nothing is printed over them.
+      const dSeg = (px, py, [ax, ay], [bx, by]) => { const vx = bx - ax, vy = by - ay, u = clamp(((px - ax) * vx + (py - ay) * vy) / (vx * vx + vy * vy), 0, 1); return Math.hypot(px - ax - u * vx, py - ay - u * vy); };
+      const nearF = [wf, cf].some((ln) => ln.slice(1).some((q, k) => dSeg(s0[0], s0[1], [X(ln[k][0]), Y(ln[k][1])], [X(q[0]), Y(q[1])]) < 16));
+      const nearC = nearF || Math.hypot(s0[0] - p.point[0] * w, s0[1] - p.point[1] * h) < 70 || [F.Lc, F.Hc].some((C0) => Math.hypot(s0[0] - X(C0.x), s0[1] - Y(C0.y)) < 46);
       if (!nearC && s0[0] > 20 && s0[0] < w - 40 && s0[1] > 20 && s0[1] < h - 20) txt(c, String(lv), s0[0], s0[1] + 4, { size: 12, color: P.grey, halo: '#e6eff6', align: 'center' });
     }
     // Fronts: warm (semicircles) and cold (triangles), symbols on the side the front moves to.
@@ -2538,8 +2566,9 @@ globalThis.ALLOW_EMBED = true;
     c.fillStyle = 'rgba(224,82,10,0.18)'; c.beginPath(); c.arc(ox, oy, 26, 0, Math.PI * 2); c.fill();
     barb(c, ox, oy, q.dir, Math.min(65, q.speed), 40, P.orange);
     c.fillStyle = P.orange; c.beginPath(); c.arc(ox, oy, 4.5, 0, Math.PI * 2); c.fill();
-    tag(c, `${fmt1(pr)} гПа · ${q.dir == null ? 'штиль' : `${Wind.compass(q.dir)} ${fmt(q.speed)} уз`}`, ox, oy - 30, P.ink);
-    txt(c, p.surface ? (w < 600 ? 'у поверхности: 0,75 от изобарного, поворот 15° к L' : 'ветер у поверхности над морем: 0,75 от изобарного, поворот 15° к L') : 'ветер на высоте: вдоль изобар, L слева', 8, h - 10, { size: 12, color: P.grey, halo: '#e6eff6' });
+    const nearL = Math.hypot(ox - X(F.Lc.x), oy - 30 - Y(F.Lc.y)) < 80 || oy < 50;
+    tag(c, `${fmt1(pr)} гПа, ${q.dir == null ? 'штиль' : `${Wind.compass(q.dir)} ${fmt(q.speed)} уз`}`, ox, nearL ? oy + 48 : oy - 30, P.ink);
+    txt(c, p.surface ? (w < 600 ? 'у поверхности: 0,75 от ветра на высоте, поворот 15° к L' : 'ветер у поверхности над морем: 0,75 от ветра на высоте, поворот 15° к L') : 'ветер на высоте: вдоль изобар, L слева', 8, h - 10, { size: 12, color: P.grey, halo: '#e6eff6' });
     p._out = { pr, q };
   }
 
@@ -2568,7 +2597,7 @@ globalThis.ALLOW_EMBED = true;
   const FRONT_TEXT = {
     warm: [
       ['за 12–24 ч', 'Перистые облака сгущаются, гало вокруг солнца. Давление начинает падать.'],
-      ['за 3–10 ч', 'Высокослоистые, затем слоисто-дождевые облака. Непрерывный дождь, морось. Ветер усиливается до 10–15 уз и отступает к SE.'],
+      ['за 3–10 ч', 'Высокослоистые, затем слоисто-дождевые облака. Непрерывный дождь, морось. Ветер усиливается до 10–15 уз и поворачивает влево, к SE.'],
       ['прохождение', 'Дождь кончается, ветер заходит вправо на SW. Давление перестаёт падать, теплеет.'],
       ['после', 'Тёплый сектор: низкая слоистая облачность, морось, плохая видимость, туман над холодной водой.'],
     ],
@@ -2678,7 +2707,8 @@ globalThis.ALLOW_EMBED = true;
       flow(c, [[HX(-2.5), Z(0.05)], [HX(5), yWF(HX(5)) - Hs * 0.07], [HX(12), yWF(HX(12)) - Hs * 0.07], [HX(18), yWF(HX(18)) - Hs * 0.08]], orange, 2.5, t, 30);
       flow(c, [[HX(21), yWF(HX(21)) + Hs * 0.16], [HX(12), Z(0.08)]], blue, 2.5, t, 25);
       lab('тёплый воздух', HX(-6), Z(nb ? 0.55 : 0.68), { color: '#b0482a', weight: 700, align: 'center' });
-      lab('холодный воздух', HX(15), Z(0.06), { color: blue, weight: 700, align: 'center' });
+      if (nb) { lab('холодный', w - 26, Z(0.17), { color: blue, weight: 700, align: 'right' }); lab('воздух', w - 26, Z(0.09), { color: blue, weight: 700, align: 'right' }); }
+      else lab('холодный воздух', HX(15), Z(0.06), { color: blue, weight: 700, align: 'center' });
       if (!nb) {
         lab('слоисто-дождевые', (n0 + n1) / 2, Z(0.4), { align: 'center', weight: 500 });
         lab('высокослоистые', HX(13.2), Z(0.6), { align: 'center', weight: 500 });
@@ -2716,12 +2746,25 @@ globalThis.ALLOW_EMBED = true;
     c.restore();
     // Weather strip on top, moving with the front.
     c.fillStyle = 'rgba(255,255,255,0.55)'; c.fillRect(0, 0, w, strip);
-    wx.forEach(([hh, str], i) => {
-      const x = HX(hh), size = nb ? 11.5 : 13.5;
-      if (x < -40 || x > w + 40) return;
-      const ls = wrapLines(c, str, nb ? 78 : Math.min(170, w * 0.17), size, 600), y0 = (i % 2 ? (nb ? 44 : 40) : 16) + (ls.length === 1 ? 6 : 0);
-      ls.forEach((ln, k) => txt(c, ln, x, y0 + k * (size + 2), { size, weight: 600, color: P.ink, align: 'center' }));
+    // Labels go in one row; a label near the edge is shifted inside, and one that would touch its neighbour
+    // drops to a second row.
+    const size = nb ? 11.5 : 13.5, maxW = nb ? 78 : Math.min(170, w * 0.17);
+    c.font = FONT(size, 600);
+    let lastRight = -1e9;
+    const boxes = wx.filter(([hh]) => HX(hh) >= -40 && HX(hh) <= w + 40).map(([hh, str]) => {
+      const ls = wrapLines(c, str, maxW, size, 600);
+      c.font = FONT(size, 600);
+      const half = Math.max(...ls.map((ln) => c.measureText(ln).width)) / 2 + 6, x = clamp(HX(hh), half, w - half);
+      const row = x - half < lastRight + 4 ? 1 : 0;
+      if (!row) lastRight = x + half;
+      return { ls, x, row };
     });
+    const two = boxes.some((b) => b.row);
+    for (const { ls, x, row } of boxes) {
+      const yc = !two ? strip * 0.5 : row ? strip * 0.74 : strip * 0.3;
+      const y0 = yc - ((ls.length - 1) * (size + 2)) / 2 + size * 0.35;
+      ls.forEach((ln, k) => txt(c, ln, x, y0 + k * (size + 2), { size, weight: 600, color: P.ink, align: 'center' }));
+    }
     // Ground line: the front and its motion, the yacht in place.
     if (xf > -20 && xf < w + 20) {
       txt(c, warm ? 'тёплый фронт' : occl ? 'окклюзия' : 'холодный фронт', xf - 6, H - 8, { size: nb ? 11 : 12.5, weight: 700, color: '#fff', align: 'right' });
@@ -2775,8 +2818,8 @@ globalThis.ALLOW_EMBED = true;
     const k = day > 0.2 ? day : night > 0.2 ? -night * 0.6 : 0;
     const title = k > 0 ? 'Дневной (морской) бриз' : k < 0 ? 'Ночной (береговой) бриз' : sunf < 0.5 ? 'Облачно: бриза нет' : 'Бриза нет';
     txt(c, title, 14, 26, { size: 17, weight: 700, color: isDay ? P.ink : '#fff' });
-    const seaT = k > 0 ? 'море прохладное · высокое P' : k < 0 ? 'море тёплое · низкое P' : 'море';
-    const landT = k > 0 ? 'суша тёплая · низкое P' : k < 0 ? 'суша холодная · высокое P' : 'суша';
+    const seaT = k > 0 ? 'море прохладное, давление выше (H)' : k < 0 ? 'море тёплое, давление ниже (L)' : 'море';
+    const landT = k > 0 ? 'суша тёплая, давление ниже (L)' : k < 0 ? 'суша холодная, давление выше (H)' : 'суша';
     txt(c, seaT, xc / 2, yb + 30, { size: 13, color: '#fff', align: 'center', weight: 600, max: xc - 12 });
     txt(c, landT, w * 0.76, yb + 30, { size: 13, color: P.ink, align: 'center', weight: 600, max: w * 0.46 });
     const inkB = isDay ? 'rgba(70,80,95,0.8)' : 'rgba(210,220,235,0.85)';
@@ -2862,7 +2905,9 @@ globalThis.ALLOW_EMBED = true;
       const width = 2.5 + 4 * kn, sp = 25 + 70 * kn;
       for (const [f0, f1] of [[0.95, 0.72], [0.66, 0.42], [0.36, 0.12]]) flow(c, [along(f0, 16), along(f1, 16)], '#7fb2ff', width, t, sp);
       flow(c, [[w * 0.17, yb - 14], [w * 0.03, yb - 14]], '#7fb2ff', width + 1, t, sp);
-      for (const f of [0.55, 0.8]) for (let q = -1; q <= 1; q++) { const [x, y] = along(f, 30); arrow(c, x + q * 9, y, x + q * 9, y - 24, 'rgba(255,255,255,0.7)', 1.3); }
+      // Long-wave cooling of the slope: heat leaves upwards.
+      for (const f of nb ? [0.55] : [0.55, 0.8]) for (let q = -1; q <= 1; q++) { const [x, y] = along(f, 30); arrow(c, x + q * 9, y, x + q * 9, y - 24, 'rgba(255,255,255,0.7)', 1.3); }
+      { const [x, y] = along(0.55, 30); txt(c, 'тепло уходит вверх', x - 16, y - 16, { size: 12, color: 'rgba(255,255,255,0.85)', align: 'right' }); }
       txt(c, nb ? 'ясная ночь: склон остывает, воздух тяжелеет' : 'ясная ночь: склон остывает излучением, воздух на нём тяжелеет', 12, 22, { size: 13.5, color: tc });
       txt(c, 'холодный воздух стекает по склону', nb ? 12 : 100, nb ? 48 : hh * 0.32, { size: nb ? 14 : 17, weight: 700, color: '#9cc4ff' });
       lines(c, ['в бухте ветер с берега 3–10 уз, максимум перед рассветом', `сейчас у устья Северной долины ${fmt(p.mouth)} уз`], 2, H0 - 26, 17, { size: 13, color: P.ink });
@@ -2925,7 +2970,7 @@ globalThis.ALLOW_EMBED = true;
       txt(c, `${fmt(kk)} уз`, x + (nb ? 28 : 34), by + bh + 24, { size: 12.5, weight: 700, color: P.ink });
     }
     const msg = mode < 0 ? (nb ? 'в сужении вдвое быстрее' : 'ночью воздух стекает к бухте, в сужении вдвое быстрее') : (nb ? 'в сужении вдвое сильнее' : 'днём ветер дует вверх по долине, в сужении вдвое сильнее');
-    tag(c, msg, nb ? w - 8 : sx(0.5), by - 4, col, { align: nb ? 'right' : 'center' });
+    txt(c, msg, w - 8, by - 12, { size: 13, weight: 700, color: col, align: 'right' });
   }
   function drawKatabaticPlan(c, w, h, p, t) {
     const h1 = w < 620 ? 350 : 330;
@@ -2962,7 +3007,7 @@ globalThis.ALLOW_EMBED = true;
     }
     c.save(); c.strokeStyle = P.ink; c.setLineDash([6, 5]); c.lineWidth = 1.6; c.beginPath(); model.forEach((z, i) => (i ? c.lineTo(X(i), Y(z)) : c.moveTo(X(i), Y(z)))); c.stroke(); c.restore();
     const mMax = Math.max(...model), iM = model.indexOf(mMax);
-    tag(c, 'модель 9 км: хребет около 1000 м', X(iM) + 30, Y(mMax) + 30, 'rgba(28,42,68,0.8)', { align: 'left' });
+    tag(c, 'модель 9 км: хребет около 900 м', X(iM) + 30, Y(mMax) + 30, 'rgba(28,42,68,0.8)', { align: 'left' });
     txt(c, '1500 м', X(I(16.5)) + 8, Y(1500) + 18, { size: 12, color: P.grey });
     if (p.high) { txt(c, 'H', w - 36, 36, { size: 28, weight: 800, color: '#2c5fb0', align: 'center' }); txt(c, nb ? 'антициклон' : 'антициклон за хребтом', w - 12, 54, { size: 12, color: P.grey, align: 'right' }); }
     if (p.low) { txt(c, 'L', 30, 36, { size: 28, weight: 800, color: P.red, align: 'center' }); txt(c, nb ? 'циклон' : 'циклон над морем', 12, 54, { size: 12, color: P.grey }); }
@@ -3002,8 +3047,10 @@ globalThis.ALLOW_EMBED = true;
       const ink = '#1c2a44', sp = 40;
       if (Q.key === 'cape') {
         poly(c, [[0, ph * 0.48], [pw * 0.28, ph * 0.56], [pw * 0.52, ph * 0.74], [pw * 0.66, ph], [0, ph]], P.planLand);
-        [[0.12, 0.62, 1], [0.27, 0.62, 1], [0.42, 0.78, 1.25], [0.55, 0.92, 1.4]].forEach(([yy, len, k]) => flow(c, [[pw * 0.08, ph * yy * 0.8], [pw * (0.08 + len * 0.8), ph * yy * 0.8]], ink, 2.6, t, sp * k));
-        txt(c, '×1,3', x0 + pw * 0.72, ph * 0.82, { size: 26, weight: 800, color: P.orange });
+        // Streamlines bend round the cape: they crowd together and speed up at its tip, then spread out behind it.
+        [[0.12, 0.11, 0.16, 1], [0.24, 0.2, 0.32, 1.1], [0.34, 0.29, 0.5, 1.3], [0.42, 0.38, 0.68, 1.5]].forEach(([y0s, ym, y1s, k]) =>
+          flow(c, [[pw * 0.04, ph * y0s], [pw * 0.3, ph * (y0s + ym) / 2], [pw * 0.6, ph * ym], [pw * 0.8, ph * (ym + y1s) / 2], [pw * 0.95, ph * y1s]], ink, 2.6, t, sp * k));
+        txt(c, '×1,3', x0 + pw * 0.74, ph * 0.9, { size: 24, weight: 800, color: P.orange });
       } else if (Q.key === 'strait') {
         poly(c, [[0, 0], [pw, 0], [pw, ph * 0.23], [pw * 0.62, ph * 0.38], [pw * 0.38, ph * 0.38], [0, ph * 0.23]], P.planLand);
         poly(c, [[0, ph], [pw, ph], [pw, ph * 0.77], [pw * 0.62, ph * 0.62], [pw * 0.38, ph * 0.62], [0, ph * 0.77]], P.planLand);
@@ -3026,7 +3073,7 @@ globalThis.ALLOW_EMBED = true;
   const CONV = [
     [10, 13, 'Облако подтягивает воздух', 'Тёплый влажный воздух у воды стекается к растущему облаку и поднимается в нём. Под облаком ветер дует к нему, слабый.'],
     [13, 15, 'Облако растёт', 'Башня поднимается выше 5–6 км, вершина становится волокнистой. До грозы 30–60 минут: следите за облаком и радаром.'],
-    [15, 17.5, 'Ливень и шквал', 'Из облака идут ливень и холодный нисходящий поток. Он растекается по воде, впереди идёт линия шквала: порыв 30–50 уз за минуту, поворот ветра до 180°, вал белой воды. Шквал длится 15–40 минут.'],
+    [15, 17.5, 'Ливень и шквал', 'Из облака идут ливень и холодный нисходящий поток. Он растекается по воде, впереди идёт фронт порывов.'],
     [17.5, 21.01, 'Распад', 'Нисходящий поток гасит восходящий. Остаётся наковальня и слабый дождь, ветер стихает.'],
   ];
   // A single thunderstorm over the sea, stage by stage: inflow and updraft, growth, downpour with the squall
@@ -3079,7 +3126,7 @@ globalThis.ALLOW_EMBED = true;
       c.fillStyle = 'rgba(255,255,255,0.9)';
       for (let k = 0; k < 9; k++) { const x = xg - 4 + k * 6 + Math.sin(t * 6 + k) * 2; c.beginPath(); c.arc(x, yb - 2 - (k % 3) * 2, 3 + (k % 2), 0, Math.PI * 2); c.fill(); }
       c.save(); c.setLineDash([6, 5]); c.strokeStyle = P.red; c.lineWidth = 2.5; c.beginPath(); c.moveTo(xg - 4, cb + 30); c.lineTo(xg - 4, yb + 4); c.stroke(); c.restore();
-      tag(c, 'линия шквала', xg - 6, cb + 52, P.red, { align: xg < w * 0.3 ? 'left' : 'right' });
+      tag(c, 'фронт порывов', xg - 6, cb + 52, P.red, { align: xg < w * 0.3 ? 'left' : 'right' });
     }
     if (idx === 3) rain(c, cx - 20, cx + 24, cb + 10, yb, t, 0.6, 'rgba(70,110,170,0.4)');
     // The yacht and its wind: toward the cloud before the squall line, from the cloud after it.
@@ -3089,7 +3136,7 @@ globalThis.ALLOW_EMBED = true;
     // Above the level of the shelf cloud, so the squall-line label never covers it.
     const yw = yb - sh * 0.5;
     barb(c, xy, yw, dir, kn, nb ? 24 : 30, P.ink);
-    txt(c, `у яхты ${fmt(kn)} уз, ${hit || idx === 3 ? 'от тучи' : 'к туче'}`, xy, yw + (nb ? 22 : 26), { size: 12.5, weight: 700, align: 'center', halo: 'rgba(255,255,255,0.8)' });
+    txt(c, `${hit ? 'за фронтом порывов ' : ''}ветер ${hit || idx === 3 ? 'от тучи' : 'к туче'}, ${fmt(kn)} уз`, xy, yw + (nb ? 22 : 26), { size: 12.5, weight: 700, align: 'center', halo: 'rgba(255,255,255,0.8)' });
     // Stage strip and description.
     const S0 = sh + 10, sw = (w - 16) / CONV.length;
     CONV.forEach((s, i) => {
@@ -3154,8 +3201,8 @@ globalThis.ALLOW_EMBED = true;
       c.strokeStyle = P.ink; c.lineWidth = 1; c.beginPath(); c.moveTo(x, base + 18); c.lineTo(x, base + (row ? 36 : 22)); c.stroke();
       txt(c, `${lab}: ${ci.land ? 'в модели суша' : 'в модели вода'}`, x, base + (row ? 50 : 34), { size: 12, align: 'center', weight: 700, color: ci.land ? P.red : P.blue, halo: '#fff' });
     });
-    txt(c, nb(w) ? 'море — пролив — марина — хребет — плато' : 'разрез: открытое море — пролив — марина — хребет — плато', 8, 20, { size: 13, color: P.grey });
-    c.fillStyle = P.orange; c.fillRect(8, 32, 18, 3); txt(c, `пунктир — рельеф на сетке ${res} км`, 32, 38, { size: 12, color: P.grey });
+    txt(c, nb(w) ? 'море → пролив → марина → хребет → плато' : 'разрез: открытое море → пролив → марина → хребет → плато', 8, 20, { size: 13, color: P.grey });
+    c.fillStyle = P.orange; c.fillRect(8, 32, 7, 3); c.fillRect(19, 32, 7, 3); txt(c, `рельеф на сетке ${res} км`, 32, 38, { size: 12, color: P.grey });
   }
   const nb = (w) => w < 600;
 
@@ -3201,19 +3248,19 @@ globalThis.ALLOW_EMBED = true;
     if (sail > 0) { c.fillStyle = '#fff'; c.beginPath(); c.moveTo(2, -72 + 70 * (1 - sail)); c.lineTo(2, -6); c.lineTo(2 + 34 * sail + 6, -6); c.closePath(); c.fill(); c.stroke(); }
     if (B <= 7) { c.fillStyle = '#f2f2f2'; c.beginPath(); c.moveTo(-2, -70); c.lineTo(-2 - 26 * Math.max(0.5, sail), -4); c.lineTo(-4, -4); c.closePath(); c.fill(); c.stroke(); }
     c.restore();
-    txt(c, B <= 4 ? 'полные паруса' : B === 5 ? 'первый риф' : B === 6 ? 'второй риф' : B <= 8 ? 'штормовые паруса' : 'без парусов, к укрытию заранее', bx, sceneH - 10, { size: 12.5, color: '#fff', align: 'center', weight: 600 });
-    // Card: number, name, units, waves, barb.
+    // Sail plan label next to the boat, above the mast.
+    txt(c, B <= 4 ? 'полные паруса' : B === 5 ? 'первый риф' : B === 6 ? 'второй риф' : B <= 8 ? 'штормовые паруса' : 'без парусов, к укрытию заранее', bx, Math.max(16, by - 86), { size: 12.5, color: B >= 8 ? '#fff' : P.ink, align: 'center', weight: 600 });
+    // Card: number, name, units, waves, gusts, barb. Its height follows the content.
     const cx = nb ? 0 : sw + 14, cy = nb ? sceneH + 12 : 8, cw = nb ? w : w - sw - 14;
-    card(c, cx, cy, cw, nb ? h - sceneH - 16 : h - 18);
+    const ms = kn * 0.514, kmh = kn * 1.852;
+    const info = [`${fmt(kn)} уз = ${fmt1(ms)} м/с = ${fmt(kmh)} км/ч`, `диапазон балла: ${row[3]}–${B === 12 ? '…' : row[4]} уз`, `порывы над морем: около ${fmt(kn * 1.3)} уз`, `волна в открытом море: ${row[5]} м`];
+    c.font = FONT(13); let ln = 'море:'; for (const wd of row[6].split(' ')) { if (c.measureText(`${ln} ${wd}`).width > cw - 34) { info.push(ln); ln = wd; } else ln = `${ln} ${wd}`; } info.push(ln);
+    card(c, cx, cy, cw, Math.min(nb ? h - sceneH - 16 : h - 18, 112 + info.length * 20 + 14));
     txt(c, String(B), cx + 16, cy + 56, { size: 52, weight: 800, color: P.ink });
     c.fillStyle = Draw.speedCSS(Math.max(5, kn)); c.fillRect(cx + 16, cy + 62, B >= 10 ? 60 : 30, 5);
     txt(c, B === 1 ? 'балл' : B >= 2 && B <= 4 ? 'балла' : 'баллов', cx + 16 + (B >= 10 ? 66 : 36), cy + 54, { size: 14, color: P.grey });
-    txt(c, row[1], cx + 16, cy + 82, { size: 18, weight: 700 });
-    txt(c, row[2], cx + 16, cy + 101, { size: 12.5, color: P.grey });
-    const ms = kn * 0.514, kmh = kn * 1.852;
-    const info = [`${fmt(kn)} уз = ${fmt1(ms)} м/с = ${fmt(kmh)} км/ч`, `диапазон балла: ${row[3]}–${B === 12 ? '…' : row[4]} уз`, `волна в открытом море: ${row[5]} м`];
-    c.font = FONT(13); let ln = 'море:'; for (const wd of row[6].split(' ')) { if (c.measureText(`${ln} ${wd}`).width > cw - 34) { info.push(ln); ln = wd; } else ln = `${ln} ${wd}`; } info.push(ln);
-    lines(c, info, cx + 16, cy + 128, 20, { size: 13, max: cw - 30 });
+    txt(c, row[1], cx + 16, cy + 84, { size: 18, weight: 700 });
+    lines(c, info, cx + 16, cy + 112, 20, { size: 13, max: cw - 30 });
     const bxx = cx + cw - (nb ? 70 : 60), byy = cy + 70;
     barb(c, bxx, byy, p.dir, kn, 46, P.ink);
     txt(c, `флажок: ${Wind.compass(p.dir)}`, bxx, cy + 120, { size: 12, color: P.grey, align: 'center' });
@@ -3298,8 +3345,8 @@ globalThis.ALLOW_EMBED = true;
     c.strokeStyle = P.blue; c.setLineDash([6, 4]); c.lineWidth = 2; c.beginPath(); c.moveTo(XT(F.Td), YZ(0)); c.lineTo(XT(F.Td - 0.6), YZ(400)); c.stroke(); c.setLineDash([]);
     c.strokeStyle = P.red; c.lineWidth = 2.5; c.beginPath(); for (let z = 0; z <= 400; z += 10) { const x = XT(Tz(z)), y = YZ(z); z ? c.lineTo(x, y) : c.moveTo(x, y); } c.stroke();
     txt(c, `T ${fmt1(F.T)} °C`, XT(Tz(200)) + 8, YZ(200), { size: 12.5, weight: 700, color: P.red, halo: '#fff' });
-    txt(c, `Td ${fmt1(F.Td)} °C`, XT(F.Td) - 8, YZ(330), { size: 12.5, weight: 700, color: P.blue, align: 'right', halo: '#fff' });
-    txt(c, `T − Td = ${fmt1(F.spread)} °C${F.spread >= 2 ? ` · облака от ≈${fmt(125 * F.spread)} м` : ''}`, px + 12, py + PH - 10, { size: 12.5, weight: 700, max: PW - 20 });
+    txt(c, `Td ${fmt1(F.Td)} °C`, XT(F.Td - 0.6) - 10, YZ(330), { size: 12.5, weight: 700, color: P.blue, align: 'right', halo: '#fff' });
+    txt(c, `T − Td = ${fmt1(F.spread)} °C${F.spread >= 2 ? `, облака от ≈${fmt(125 * F.spread)} м` : ''}`, px + 12, py + PH - 10, { size: 12.5, weight: 700, max: PW - 20 });
     p._out = F;
   }
 
@@ -3409,7 +3456,7 @@ globalThis.ALLOW_EMBED = true;
     const big = (s, x, col2) => { c.font = `700 ${nb ? 28 : 34}px "Source Serif 4", Georgia, serif`; c.textAlign = 'center'; c.lineWidth = 5; c.strokeStyle = 'rgba(255,255,255,0.85)'; c.strokeText(s, x, Y(2900)); c.fillStyle = col2; c.fillText(s, x, Y(2900)); c.textAlign = 'left'; };
     big('L', x0 + 40, '#c62f3a'); big('H', x1 - 40, '#2f62a8');
     txt(c, nb ? 'поднимается' : 'воздух поднимается', x0 + 54, Y(1100), { size: 12.5, color: '#b0482a', weight: 600, halo: 'rgba(255,255,255,0.8)' });
-    txt(c, 'опускается', x1 - 54, Y(1100), { size: 12.5, color: P.blue, weight: 600, align: 'right', halo: 'rgba(255,255,255,0.8)' });
+    txt(c, 'опускается', x1 - 54, Y(1100) - (nb ? 40 : 0), { size: 12.5, color: P.blue, weight: 600, align: 'right', halo: 'rgba(255,255,255,0.8)' });
     // Sea-level isobars: ticks where pressure crosses a multiple of 4 hPa.
     const ticks = [];
     for (let x = x0; x <= x1; x += 1) { const a = Ps(x), b = Ps(x + 1); const k = Math.ceil(a / 4) * 4; if (k <= b && k > a) ticks.push([x, k]); }
@@ -3443,7 +3490,7 @@ globalThis.ALLOW_EMBED = true;
   function drawModels(c, w, h, p) {
     const nb = w < 620, lead = p.lead, use = modelsFor(lead);
     const cw = nb ? w : w * 0.58, x0 = nb ? 112 : 136, x1 = cw - 18, top = 34, rowH = nb ? 24 : 27;
-    const X = (d) => x0 + (x1 - x0) * Math.sqrt(d / 16); // square-root scale gives the first days more room
+    const X = (d) => x0 + (x1 - 46 - x0) * Math.sqrt(d / 16); // square-root scale gives the first days more room; room for labels on the right
     c.fillStyle = '#f7f9fb'; c.fillRect(0, 0, w, h);
     txt(c, 'Сетка и горизонт прогноза', 10, 20, { size: 14, weight: 700 });
     const yAxis = top + MODELS.length * rowH + 14;
@@ -3469,7 +3516,7 @@ globalThis.ALLOW_EMBED = true;
     // Lead-time cursor.
     const xc = X(lead);
     c.strokeStyle = P.red; c.lineWidth = 2; c.beginPath(); c.moveTo(xc, top - 6); c.lineTo(xc, yAxis - 6); c.stroke();
-    tag(c, lead < 1 ? `через ${Math.round(lead * 24)} ч` : `через ${String(lead).replace('.', ',')} сут`, xc, top - 8, P.red, { align: xc > x1 - 60 ? 'right' : 'center' });
+    tag(c, lead < 1 ? `через ${Math.round(lead * 24)} ч` : lead === 1 ? 'через сутки' : `через ${String(lead).replace('.', ',')} суток`, xc, top - 8, P.red, { align: xc > x1 - 60 ? 'right' : 'center' });
     // The bay under the grid of the chosen model.
     const g = p.grid, bx0 = nb ? 10 : cw + 16, by0 = nb ? yAxis + 50 : 40;
     const bh = Math.min((nb ? w - 20 : w - cw - 26) * 0.75, h - by0 - 50), bw = bh / 0.75;
@@ -3561,7 +3608,7 @@ globalThis.CHAPTERS = {
   heat: {
     title: 'Солнце, тёплый воздух и давление',
     before: [
-      'Солнце нагревает поверхность, а от неё нагревается воздух. Суша прогревается быстрее моря, потому что вода нагревается медленно. Тёплый воздух легче холодного и поднимается струями, их называют термиками. Между термиками воздух опускается.',
+      'Солнце нагревает поверхность, а от неё нагревается воздух. Вода нагревается медленно, поэтому суша прогревается быстрее моря. Тёплый воздух легче холодного и поднимается струями, их называют термиками. Между термиками воздух опускается.',
       'При подъёме воздух остывает примерно на 1 °C на каждые 100 м. Точка росы Td — температура, при которой водяной пар превращается в капли. Когда поднимающийся воздух остывает до неё, образуется облако. Высоту основания кучевого облака оценивают как 125 м × (T − Td), где T — температура воздуха.',
     ],
     after: [
@@ -3579,18 +3626,18 @@ globalThis.CHAPTERS = {
   t2: {
     title: 'Давление, циклоны и антициклоны',
     before: [
-      'То же самое происходит и в масштабе тысяч километров. Давление — это вес столба воздуха над точкой, норма 1013 гПа. На синоптической карте точки с одинаковым давлением соединяют линиями, изобарами, через каждые 4 гПа. В центре циклона (L) давление низкое, в центре антициклона (H) высокое.',
+      'Разница давления бывает не только между сушей и морем, но и на расстояниях в тысячи километров. Давление — это вес столба воздуха над точкой, норма 1013 гПа. На синоптической карте точки с одинаковым давлением соединяют линиями, изобарами, через каждые 4 гПа. В центре циклона (L) давление низкое, в центре антициклона (H) высокое.',
       'Разницу давления на расстоянии называют градиентом. Чем ближе друг к другу изобары, тем сильнее ветер. Вращение Земли отклоняет поток вправо, поэтому на высоте ветер дует вдоль изобар, а низкое давление остаётся слева.',
     ],
     after: [
-      'Флажки на карте показывают ветер, читать их будем в следующей главе. Вокруг циклона ветер дует против часовой стрелки и к центру, там облака, осадки и сильный ветер. Вокруг антициклона он дует по часовой стрелке и от центра, погода ясная, ветер слабый.',
+      'Флажки на карте показывают ветер, читать их будем в следующей главе. Вокруг циклона ветер дует против часовой стрелки и к центру. В циклоне облака, осадки и сильный ветер. Вокруг антициклона ветер дует по часовой стрелке и от центра, погода ясная, ветер слабый.',
       'У поверхности трение тормозит ветер и поворачивает его к L. Отсюда правило Бёйс-Балло: если встать спиной к ветру, низкое давление будет слева и немного впереди.',
-      'На яхте важно, как изменилось давление за последние 3 часа. Поставьте «Давление в центре циклона» на 980 гПа и щёлкните по карте в нескольких местах.',
+      'Когда циклон приближается, давление у яхты падает, а изобары над ней сгущаются, поэтому ветер усиливается. Если барометр упал больше чем на 3 гПа за 3 часа, ждите сильного ветра. Поставьте «Давление в центре циклона» на 980 гПа и нажмите на карту в нескольких местах.',
     ],
     key: [
       'Чем гуще изобары, тем сильнее ветер.',
       'Если встать спиной к ветру, циклон будет слева и чуть впереди.',
-      'Барометр упал больше чем на 3 гПа за 3 часа: ветер усилится.',
+      'Если барометр упал больше чем на 3 гПа за 3 часа, ветер усилится.',
     ],
   },
 
@@ -3598,16 +3645,16 @@ globalThis.CHAPTERS = {
     title: 'Ветер: флажки и шкала Бофорта',
     before: [
       'На картах ветер рисуют флажками. Древко указывает, откуда дует ветер. Короткое перо означает 5 узлов, длинное 10, треугольник 50. Узел равен морской миле в час, 1,852 км/ч; 10 м/с примерно 20 узлов. Стрелки в приложениях обычно показывают, куда дует ветер.',
-      'Направления обозначают буквами: N север, E восток, S юг, W запад, NE северо-восток, SSW между S и SW. Силу ветра оценивают по шкале Бофорта от 0 до 12 баллов. Это средний ветер за 10 минут на высоте 10 м над открытым морем.',
+      'Направления обозначают буквами: N север, E восток, S юг, W запад, NE северо-восток, SSW между S и SW. Силу ветра оценивают по шкале Бофорта от 0 до 12 баллов. Балл определяют по среднему ветру за 10 минут на высоте 10 м над открытым морем.',
     ],
     after: [
-      'На схеме видно, как выглядят море и паруса при выбранном ветре. Верхние границы баллов: 4 балла до 16 узлов, 5 до 21, 6 до 27, 7 до 33, 8 до 40. При усилении ветра берут риф, то есть уменьшают площадь паруса.',
-      'Порыв опускает к воде воздух сверху, а там ветер сильнее. Над морем порывы на 20–40 % сильнее среднего ветра. Ветровая волна короткая и крутая. Зыбь приходит издалека, она пологая.',
+      'С каждым баллом на воде больше барашков, а яхта несёт меньше парусов. Верхние границы баллов: 4 балла до 16 узлов, 5 до 21, 6 до 27, 7 до 33, 8 до 40. При усилении ветра берут риф, то есть уменьшают площадь паруса.',
+      'Порыв — это воздух сверху, где ветер сильнее, опустившийся к воде. Над морем порывы на 20–40 % сильнее среднего ветра, поэтому паруса и рифы выбирают по порывам.',
       'Поставьте «Средний ветер» на 25 узлов. Сколько это баллов и как выглядит флажок?',
     ],
     key: [
       'Древко флажка смотрит туда, откуда дует ветер.',
-      '5 баллов это ветер до 21 узла, 6 баллов до 27.',
+      '5 баллов — это ветер до 21 узла, 6 баллов до 27.',
       'Решение принимают по порывам.',
     ],
   },
@@ -3616,17 +3663,17 @@ globalThis.CHAPTERS = {
     title: 'Атмосферные фронты',
     before: [
       'В циклоне встречаются тёплый и холодный воздух. Большой объём воздуха с одинаковой температурой и влажностью называют воздушной массой, а границу двух масс фронтом. На фронте тёплый воздух поднимается над холодным, остывает до точки росы, и появляются облака и осадки.',
-      'Тёплый фронт пологий. Облака видны за сутки, погода портится медленно и надолго. Холодный фронт крутой: холодный воздух подтекает под тёплый клином, погода портится быстро и ненадолго. Окклюзия получается, когда холодный фронт догоняет тёплый.',
+      'Тёплый фронт пологий. За 12–24 часа до него появляются перистые облака, они сгущаются, вокруг солнца видно гало. Погода портится медленно и надолго. Холодный фронт крутой: холодный воздух подтекает под тёплый клином, погода портится быстро и ненадолго. Окклюзия получается, когда холодный фронт догоняет тёплый.',
     ],
     after: [
-      'Под разрезом запись с яхты: давление, ветер и осадки. Перед фронтом давление падает, после холодного фронта резко растёт.',
+      'Разрез идёт с запада на восток. Фронт смещается на восток и проходит над яхтой. Под разрезом запись с яхты: давление, ветер и осадки. Перед фронтом давление падает, после холодного фронта резко растёт.',
       'После любого фронта в Северном полушарии ветер поворачивает вправо. У холодного фронта поворот составляет 60–90° и приходит со шквалом: ветер быстро усиливается на 10–20 узлов сверх среднего.',
-      'Разрез идёт с запада на восток. Фронт смещается на восток и проходит над яхтой. Выберите фронт и ведите «Время на яхте» от −24 до +12 ч.',
+      'Выберите фронт и ведите «Время на яхте» от −24 до +12 ч.',
     ],
     key: [
-      'Перистые облака сгущаются, вокруг солнца гало: тёплый фронт придёт через 12–24 ч.',
+      'Перистые облака сгущаются и вокруг солнца гало: через 12–24 часа придёт тёплый фронт.',
       'Холодный фронт проходит быстро, со шквалом и поворотом ветра вправо.',
-      'Давление падало и резко пошло вверх: фронт прошёл.',
+      'Если давление падало и резко пошло вверх, фронт прошёл.',
     ],
   },
 
@@ -3635,9 +3682,9 @@ globalThis.CHAPTERS = {
     before: [
       'Днём суша нагревается быстрее моря. Воздух над берегом поднимается, давление там падает, и с моря на сушу начинает дуть ветер. Это морской бриз. Он появляется к 11–12 часам и сильнее всего после обеда, 10–15 узлов.',
       'Ночью суша остывает быстрее моря, и слабый ветер дует с берега. Бриза не будет, если небо затянуто облаками или дует сильный синоптический ветер, то есть ветер от циклонов и антициклонов.',
+      'Дальше в курсе ветер показан на карте вымышленной бухты, на севере у неё хребет. Цвет воды показывает силу ветра, флажки показывают, откуда он дует, а бегущие штрихи показывают сам поток. Над прогретым берегом встают кучевые облака: там поднимается тёплый воздух.',
     ],
     after: [
-      'На карте вымышленная бухта, на севере хребет. Цвет воды показывает силу ветра, флажки показывают, откуда он дует. Линия кучевых облаков над берегом отмечает фронт бриза.',
       'Днём ветер у берега складывается из синоптического ветра и бриза. Если они дуют в одну сторону, ветер усиливается, если навстречу, они гасят друг друга. Дальше 10 миль от берега бриз почти не чувствуется.',
       'Ведите «Время» от 09:00 до 20:00, потом выключите «Ясно».',
     ],
@@ -3650,12 +3697,12 @@ globalThis.CHAPTERS = {
   t5: {
     title: 'Стоковый и долинный ветер',
     before: [
-      'Ночью воздух у земли остывает, тяжелеет и стекает вниз. Ясной ночью он стекает по склонам гор к морю. Такой ветер называют катабатическим, или стоковым. В бухтах и у устьев долин он дует со скоростью 3–10 узлов, сильнее всего перед рассветом.',
+      'Ясной ночью остывший у земли воздух стекает по склонам гор к морю. Такой ветер называют катабатическим, или стоковым. В бухтах и у устьев долин он дует со скоростью 3–10 узлов, сильнее всего перед рассветом.',
       'Днём склоны прогреваются, и ветер дует от моря вверх по долине. У устья долины он складывается с бризом.',
     ],
     after: [
-      'Ночью на карте ветер выходит из долин, а между ними штиль. В узком месте долины поток вдвое сильнее. Сильный синоптический ветер размывает стоковый.',
-      'Поставьте яхту у устья Северной долины (названия включаются кнопкой «Названия») и посмотрите ветер в 05:00, потом в 14:00. Затем задайте «Синоптический ветер» 15 узлов.',
+      'Ночью на карте ветер выходит из долин, а между ними штиль. В узком месте долины поток вдвое сильнее. При сильном синоптическом ветре стоковый у устья почти не заметен.',
+      'Включите «Названия», поставьте яхту у устья Северной долины и посмотрите ветер в 05:00, потом в 14:00. Затем задайте «Синоптический ветер» 15 узлов.',
     ],
     key: [
       'Ясной ночью у устьев долин дует ветер с берега, сильнее всего перед рассветом.',
@@ -3684,15 +3731,14 @@ globalThis.CHAPTERS = {
     title: 'Ветер и рельеф',
     before: [
       'Горы и берег меняют любой ветер. У мыса поток огибает препятствие и ускоряется на 20–40 %, волна становится круче. Пролив работает как воронка: ветер в нём сильнее и дует вдоль пролива.',
-      'Наветренная сторона та, откуда дует ветер, подветренная та, куда он дует. Под высоким наветренным берегом на расстоянии 5–10 его высот лежит ветровая тень: штиль и порывы с разных направлений. У острова ветер усиливается по краям, а за островом тень.',
+      'Если ветер дует с высокого берега, под этим берегом на расстоянии 5–10 его высот лежит ветровая тень: штиль и порывы с разных направлений. Там бывает ротор, вихрь с горизонтальной осью. У острова ветер усиливается по краям, а за островом тень.',
     ],
     after: [
-      'Под картой написано, какой был бы ветер без рельефа и на сколько процентов он изменился.',
-      'Держите яхту в проливе Узком и переключайте «Учитывать рельеф». Потом поставьте «Ветер, откуда» на восток и найдите тень у западного берега.',
+      'Держите яхту в проливе Узком и переключайте «Учитывать рельеф». Потом поставьте «Ветер, откуда» на восток и найдите тень у западного берега, к северу от Порта Каменка.',
     ],
     key: [
       'У мысов и в проливах ветер примерно в 1,3 раза сильнее.',
-      'Под высоким наветренным берегом штиль и порывы с разных направлений.',
+      'Под высоким берегом, с которого дует ветер, штиль и порывы с разных направлений.',
     ],
   },
 
@@ -3700,15 +3746,15 @@ globalThis.CHAPTERS = {
     title: 'Конвекция и грозы',
     before: [
       'Солнце прогревает склоны, тёплый воздух поднимается и на высоте, где он остыл до точки росы, образует кучевое облако. Если кучевые облака плоские, погода устойчива. Если к полудню они растут вверх башнями, после обеда будут шквалы и ливни.',
-      'Из кучево-дождевого облака идёт гроза: ливень, град, молнии, видимость 100–300 м. Холодный поток опускается из облака и растекается по воде. Ветер за минуту усиливается до 30–50 узлов, поворачивает до 180° и держится так 15–40 минут.',
+      'Из кучево-дождевого облака идёт гроза: ливень, град, молнии, видимость 100–300 м. Холодный поток опускается из облака и растекается по воде. Его передний край называют фронтом порывов. Когда он проходит, ветер за минуту усиливается до 30–50 узлов, поворачивает до 180° и держится так 15–40 минут.',
     ],
     after: [
-      'Летом грозы формируются над горами после полудня и к вечеру выходят к морю. На карте видно, как грозовая ячейка смещается к воде.',
-      'За 30–60 минут до шквала видны наковальня и тёмное основание облака, под ним тёмная ровная полоса, а под полосой вал белой воды. Ветер стихает или меняет направление, давление падает.',
+      'Летом грозы формируются над горами после полудня и к вечеру выходят к морю, как ячейка на карте.',
+      'За 30–60 минут до шквала видны наковальня и тёмное основание облака. Фронт порывов выглядит как тёмная ровная полоса под облаком, а под ней на воде вал белой воды. Ветер стихает или меняет направление, давление падает.',
       'Ведите «Время» с 10:00 до 20:00. Поставьте яхту перед ячейкой, потом под ней.',
     ],
     key: [
-      'Кучевые облака к полудню растут башнями: после обеда будут шквалы и ливни.',
+      'Если кучевые облака к полудню растут башнями, после обеда будут шквалы и ливни.',
       'Под грозой ветер за минуту доходит до 30–50 узлов и поворачивает до 180°.',
     ],
   },
@@ -3720,8 +3766,8 @@ globalThis.CHAPTERS = {
       'Радиационный туман появляется после ясной тихой ночи, когда воздух у земли остыл. Утром он лежит в бухтах и долинах, солнце рассеивает его за 1–3 часа. Адвективный туман возникает, когда тёплый влажный воздух приходит на холодное море. Он держится сутками, даже при ветре.',
     ],
     after: [
-      'На схеме показаны температура и точка росы по высоте и место, где ложится туман. Радиационному туману нужны те же условия, что и стоковому ветру: ясно, тихо, устойчиво.',
-      'Точку росы можно узнать из METAR, сводок погоды аэропортов, и в сервисах прогноза. Добавьте «Ветер» 8 узлов или выключите «Ясно» и посмотрите, что станет с туманом.',
+      'Туман ложится там, где температура у земли опустилась до точки росы. Радиационному туману нужны те же условия, что и стоковому ветру: ясная тихая ночь.',
+      'Точку росы дают METAR (сводки погоды аэропортов) и сервисы прогноза. Добавьте «Ветер» 8 узлов или выключите «Ясно» и посмотрите, что станет с туманом.',
     ],
     key: [
       'Вечером T − Td меньше 2 °C, ясно и тихо: утром в бухтах будет туман.',
@@ -3736,7 +3782,7 @@ globalThis.CHAPTERS = {
       'Явление видно в модели, только если оно занимает 5–7 ячеек. На сетке 9 км бухта помещается в одну-две ячейки, а хребет становится холмом. Поэтому модели занижают бору в 1,5–2 раза, а также бриз и ветер в проливах.',
     ],
     after: [
-      'На карте показаны ячейки модели, под картой настоящий рельеф и рельеф модели. «Показать факт» сравнивает модель с реальным ветром.',
+      'Ячейки на карте закрашены так, как их видит модель. Разрез под картой сравнивает настоящий рельеф с рельефом модели, а «Показать факт» сравнивает модель с реальным ветром.',
       'К прогнозу модели добавляют поправки. Солнечный день у берега: плюс 5–10 узлов бриза после полудня. У мысов и в проливах ветер умножают на 1,3. Если ясно, за хребтом антициклон и в прогнозе NE 15 узлов, ждите бору 25–35 узлов с порывами до 45.',
       'Поставьте яхту в пролив и меняйте «Сетка модели» от 25 до 1 км. Те же модели можно посмотреть в Windy и Meteologix.',
     ],
@@ -3749,12 +3795,12 @@ globalThis.CHAPTERS = {
   models: {
     title: 'Глобальные и региональные модели',
     before: [
-      'Глобальная модель считает всю планету на сетке 9–13 км: GFS, ECMWF, ICON. Она видит циклоны и фронты на 7–16 суток вперёд, а бухту, мыс и пролив сглаживает.',
+      'Глобальная модель считает всю планету на сетке 9–13 км: GFS, ECMWF IFS, ICON, UKMO. С 2025 года ECMWF выпускает и прогноз нейросети AIFS, у неё сетка грубее, около 28 км. Глобальные модели видят циклоны и фронты на 7–16 суток вперёд, а бухту, мыс и пролив сглаживают.',
       'Региональная модель считает только часть Европы на сетке 1–7 км, а границы берёт из глобальной: AROME, ICON-D2, Swiss HD. Она видит местный ветер, но только на 2–5 суток.',
     ],
     after: [
       'За неделю до выхода смотрят глобальные модели: будет ли циклон, фронт или бора. За 1–2 суток добавляют региональную модель для ветра у берега.',
-      'Прогноз обновляется. Глобальные модели стартуют в 00, 06, 12 и 18 UTC и готовы через 4–7 часов, региональные стартуют каждые 1–3 часа. Смотрите прогноз как можно чаще, а перед выходом обязательно, и проверяйте время прогона внизу карты. На ближайшие 6 часов свежий прогон грубой модели обычно точнее старого прогона тонкой.',
+      'Прогноз обновляется. Глобальные модели стартуют в 00, 06, 12 и 18 UTC и готовы через 4–7 часов, региональные стартуют каждые 1–3 часа. Смотрите прогноз как можно чаще, а перед выходом обязательно, и проверяйте время прогона в подписи карты. На ближайшие 6 часов свежий прогон грубой модели обычно точнее старого прогона тонкой.',
       'Сравнивайте 2–3 модели и два последних прогона. Если они сильно расходятся, ситуация неустойчива, и планировать надо по худшему варианту. Насколько велик разброс, показывает ансамбль в следующей главе.',
     ],
     key: [
@@ -3763,10 +3809,11 @@ globalThis.CHAPTERS = {
       'Расхождение моделей и прогонов означает неустойчивую ситуацию.',
     ],
   },
+
   t11: {
     title: 'Ансамбль и разброс',
     before: [
-      'Небольшие ошибки в начальных данных со временем растут, поэтому модель запускают 30–50 раз с немного разными начальными условиями. Такой набор прогонов называют ансамблем. Если сценарии лежат узким пучком, прогноз надёжен. Если пучок широкий, надёжности нет.',
+      'Небольшие ошибки в начальных данных со временем растут, поэтому модель запускают 30–50 раз с немного разными начальными условиями. Такой набор прогонов называют ансамблем. Если прогоны лежат узким пучком, прогноз надёжен. Если пучок широкий, надёжности нет.',
       'P50, медиана, означает, что половина прогонов дала больше, половина меньше. P90 превышают только 10 % прогонов. Переход планируют по P90, а не по медиане.',
     ],
     after: [
@@ -3775,7 +3822,7 @@ globalThis.CHAPTERS = {
       'Ансамбли можно посмотреть в ECMWF Open Charts и Meteoblue. Решение принимают по официальному прогнозу и предупреждениям.',
     ],
     key: [
-      'Узкий пучок сценариев означает надёжный прогноз, широкий означает ненадёжный.',
+      'Узкий пучок прогонов означает надёжный прогноз, широкий означает ненадёжный.',
       'Планируйте по P90, а не по медиане.',
       'Решение принимают по официальному прогнозу, модели уточняют детали.',
     ],
@@ -3785,7 +3832,7 @@ globalThis.CHAPTERS = {
     title: 'Итоговый переход',
     before: [
       'Маршрут идёт из Марины Тихой в Порт Каменка через пролив Узкий и мимо мыса Острый, около 20 миль. Экипаж выходит, если средний ветер не больше 25 узлов, а порывы не больше 35.',
-      'Выберите ситуацию: антициклон, бора или фронт. Прочитайте бюллетень, карты двух моделей и ансамбль, посмотрите, что видно утром в марине. Проложите маршрут, пройдите чек-лист и решите: идти, ждать, менять маршрут или остаться. Потом погода случится на самом деле, и в разборе каждый пункт чек-листа сравнивается с тем, что было.',
+      'Выберите ситуацию: летний день, бора или холодный фронт. Прочитайте бюллетень, карты двух моделей и ансамбль, посмотрите, что видно утром в марине. Проложите маршрут, пройдите чек-лист и решите: идти, ждать, менять маршрут или остаться. Затем вы пройдёте маршрут в фактической погоде, и в разборе каждый пункт чек-листа сравнивается с тем, что было.',
     ],
     after: [
       'Прогноз даёт диапазон, а не одно число. Планируйте по верхней границе и сверяйте прогноз с тем, что видите сами.',
@@ -3826,18 +3873,18 @@ globalThis.CHAPTERS = {
   const cellWind = (c) => ({ u: c.u, v: c.v, speed: c.speed, gust: c.gust, dir: c.dir, variable: false });
 
   const SERVICES = [
-    ['Windy', 'https://www.windy.com', 'карты моделей ECMWF, GFS, ICON; Compare в точке; слои Gusts, Waves, CAPE, Radar'],
-    ['Meteologix', 'https://meteologix.com', 'региональная модель Swiss HD 1–4 км, сравнение моделей, карта порывов'],
-    ['ECMWF Open Charts', 'https://charts.ecmwf.int', 'ENS-метеограммы: медиана, 25–75 %, 10–90 % из 51 прогона'],
-    ['Meteoblue', 'https://www.meteoblue.com', 'MultiModel Ensemble для точки и проверка моделей по наблюдениям'],
-    ['Meteoalarm', 'https://www.meteoalarm.org', 'официальные предупреждения по регионам Европы'],
-    ['Метеослужба Черногории', 'https://www.meteo.co.me', 'официальный прогноз и предупреждения'],
-    ['DHMZ, Хорватия', 'https://meteo.hr', 'морской прогноз Адриатики, тексты NAVTEX'],
+    ['Windy', 'https://www.windy.com', 'Карты моделей ECMWF, GFS и ICON, сравнение моделей в точке, карта порывов.'],
+    ['Meteologix', 'https://meteologix.com', 'Региональная модель Swiss HD с сеткой 1–4 км, сравнение моделей, карта порывов.'],
+    ['ECMWF Open Charts', 'https://charts.ecmwf.int', 'Метеограммы ансамбля ECMWF: медиана и разброс 51 прогона.'],
+    ['Meteoblue', 'https://www.meteoblue.com', 'Ансамбль из нескольких моделей для выбранной точки.'],
+    ['Meteoalarm', 'https://www.meteoalarm.org', 'Официальные предупреждения по регионам Европы.'],
+    ['Метеослужба Черногории', 'https://www.meteo.co.me', 'Официальный прогноз и предупреждения.'],
+    ['DHMZ, Хорватия', 'https://meteo.hr', 'Морской прогноз для Адриатики.'],
   ];
   function servicesBox() {
     return el('div', { class: 'services' }, el('h3', {}, 'Посмотреть на реальных данных'),
-      el('ul', {}, ...SERVICES.map(([n, u, d]) => el('li', {}, el('a', { href: u, target: '_blank', rel: 'noopener' }, n), ` — ${d}`))),
-      el('p', { class: 'note' }, 'Сервисы показывают те же модели, что и тренажёр: проверяйте время прогона и сравнивайте 2–3 модели.'));
+      el('dl', { class: 'svc-list' }, ...SERVICES.flatMap(([n, u, d]) => [el('dt', {}, el('a', { href: u, target: '_blank', rel: 'noopener' }, n)), el('dd', {}, UI.typo(d))])),
+      el('p', { class: 'note' }, 'Проверяйте время прогона и сравнивайте 2–3 модели.'));
   }
 
   // A video next to the chapter. The artifact viewer blocks YouTube frames, so only the standalone page
@@ -3865,7 +3912,7 @@ globalThis.CHAPTERS = {
         const o = p._out || Schemes.heatOut(p);
         const cloud = p.night ? 'Ночью воздух не поднимается, облаков нет'
           : o.cloud ? `Облако там, где воздух остыл до точки росы ${v.td} °C: ≈ ${fmtNum(Math.round(o.base / 10) * 10)} м = 125 м × (${o.T.land} − ${v.td})` : `Облаков нет: воздух остыл бы до ${v.td} °C только выше 2,8 км`;
-        return { w: { speed: o.wind, gust: o.wind * 1.3, dir: o.dir }, extra: [cloud], title: 'Ветер у берега' };
+        return { w: { speed: o.wind, gust: o.wind * 1.3, dir: o.dir }, extra: [cloud], title: 'Ветер у поверхности' };
       },
     },
     // ------------------------------------------------------------------ 2. pressure, cyclones
@@ -3897,7 +3944,7 @@ globalThis.CHAPTERS = {
       section: (v) => ({ type: 'beaufort', p: { kn: v.kn, dir: v.dir } }),
       readout: (v) => {
         const B = Wind.beaufort(v.kn), row = Schemes.BF[B];
-        return { w: { speed: v.kn, gust: v.kn * 1.3, dir: v.kn < 1 ? null : v.dir }, extra: [`${row[1]} (${row[2]}), ${row[3]}–${B === 12 ? '…' : row[4]} уз`, `Волна в открытом море ${row[5]} м: ${row[6]}`, 'Порывы: средний ×1,3 над морем'], title: 'Ветер' };
+        return { w: { speed: v.kn, gust: v.kn * 1.3, dir: v.kn < 1 ? null : v.dir }, extra: ['Порывы над морем: средний ветер × 1,3'], title: 'Ветер' };
       },
     },
     // ------------------------------------------------------------------ 3. fronts
@@ -3931,7 +3978,7 @@ globalThis.CHAPTERS = {
     },
     // ------------------------------------------------------------------ 2
     {
-      id: 't4', num: 4, short: 'Бриз', title: 'Бриз и синоптический ветер',
+      id: 't4', num: 4, short: 'Бриз', title: 'Бриз',
       controls: [
         { id: 'preset', type: 'seg', label: 'Показать', options: [['day', 'Дневной бриз'], ['night', 'Ночной бриз']] },
         { id: 'hour', type: 'range', label: 'Время', min: 0, max: 23.5, step: 0.5, fmt: 'time' },
@@ -3956,7 +4003,7 @@ globalThis.CHAPTERS = {
             return [
               `Бриз в точке ${fmtNum(br)} уз${w.parts.br[0] * Bay.gradL(p.x, p.y)[0] + w.parts.br[1] * Bay.gradL(p.x, p.y)[1] < 0 ? ' (с берега)' : ''}`,
               w.land ? 'Яхта на суше.' : `До берега ${nm(d)} мили (${fmtNum(d, 1)} км)`,
-              Wind.breezeDay(v.hour) > 0.3 && v.clear ? 'Над берегом линия кучевых: фронт бриза.' : null,
+              Wind.breezeDay(v.hour) > 0.3 && v.clear ? 'Над прогретым берегом встают кучевые облака.' : null,
             ];
           },
         };
@@ -3964,7 +4011,7 @@ globalThis.CHAPTERS = {
     },
     // ------------------------------------------------------------------ 3
     {
-      id: 't5', num: 5, short: 'Катабатика', title: 'Катабатический и горно-долинный ветер',
+      id: 't5', num: 5, short: 'Стоковый', title: 'Стоковый и долинный ветер',
       controls: [
         { id: 'hour', type: 'range', label: 'Время', min: 0, max: 23.5, step: 0.5, fmt: 'time' },
         { id: 'G', type: 'range', label: 'Синоптический ветер', min: 0, max: 20, step: 1, unit: 'уз' },
@@ -4020,7 +4067,7 @@ globalThis.CHAPTERS = {
           S: base,
           overlays: {
             cap: Bo >= 0.45, pool: v.cold ? (v.high ? 1 : 0.55) : 0,
-            pressure: [v.high && { t: 'H', sub: 'центр за картой, 1030 гПа', x: 34, y: 27, z: 3.4 }, v.low && { t: 'L', sub: 'центр за картой (юго-запад), 1004 гПа', x: 3, y: 1.2, z: 2.6 }].filter(Boolean),
+            pressure: [v.high && { t: 'H', sub: 'центр за картой, 1030 гПа', x: 34, y: 27, z: 3.4 }, v.low && { t: 'L', sub: 'центр за картой (юго-запад), 1004 гПа', x: 5, y: 6, z: 2.6 }].filter(Boolean),
           },
           extra: (w, p) => {
             const m = cellAt(C9, p.x, p.y) || { speed: 0, gust: 0 };
@@ -4080,7 +4127,7 @@ globalThis.CHAPTERS = {
           overlays: { storm: c, cumulus: v.hour >= 11 && v.hour < 15 ? 0.4 + 0.6 * Wind.sstep(11, 15, v.hour) : 0 },
           extra: (w, p) => {
             const d = Math.hypot(p.x - c.x, p.y - c.y);
-            return [c.I < 0.05 ? 'Гроза ещё не развилась или уже распалась.' : d < 2.4 ? 'Яхта под ячейкой: ливень, шквал, видимость 100–300 м.' : d < 6 ? `Фронт порывов рядом: ${UI.fmtNum(d / 1.852, 1)} мили до ячейки.` : `До ячейки ${UI.fmtNum(d / 1.852, 0)} миль.`];
+            return [c.I < 0.05 ? 'Гроза ещё не развилась или уже распалась.' : d < 2.4 ? 'Яхта под ячейкой: ливень, шквал, видимость 100–300 м.' : d < 6 ? `Фронт порывов рядом, до ячейки ${UI.fmtNum(d / 1.852, 1)} мили.` : `До ячейки ${UI.fmtNum(d / 1.852, 0)} ${UI.plural(d / 1.852, 'миля', 'мили', 'миль')}.`];
           },
         };
       },
@@ -4104,7 +4151,7 @@ globalThis.CHAPTERS = {
         ]),
       ],
       defaults: { type: 'rad', hour: 5, T: 16, Td: 12, G: 2, clear: true, Ta: 20, Tda: 16, sst: 14 },
-      yacht: { x: 24.5, y: 17.2 },
+      yacht: { x: 22.8, y: 19.2 },
       fog(v) { return v.type === 'adv' ? Schemes.fogState({ type: 'adv', T: v.Ta, Td: v.Tda, sst: v.sst, G: v.G }) : Schemes.fogState({ type: 'rad', hour: v.hour, T: v.T, Td: v.Td, G: v.G, clear: v.clear }); },
       section: (v) => ({ type: 'fog', p: v.type === 'adv' ? { type: 'adv', T: v.Ta, Td: v.Tda, sst: v.sst, G: v.G, hour: 13 } : { type: 'rad', hour: v.hour, T: v.T, Td: v.Td, G: v.G, clear: v.clear } }),
       compute(v) {
@@ -4128,7 +4175,6 @@ globalThis.CHAPTERS = {
       defaults: { scn: 'bora', res: 9, truth: false },
       yacht: { x: 21.1, y: 13.1 },
       section: (v) => ({ type: 'resolution', p: { res: v.res } }),
-      services: true,
       compute(v, view) {
         const base = {
           bora: { G: 6, Gdir: 40, hour: 10, sun: 0, bora: 1 },
@@ -4150,8 +4196,8 @@ globalThis.CHAPTERS = {
             const c = cellAt(C, p.x, p.y), t = Wind.at(p.x, p.y, T);
             return [
               v.truth ? `Модель ${v.res} км в этой ячейке: ${fmtNum(c.speed)} уз, порывы ${fmtNum(c.gust)}` : `Факт в точке: ${fmtNum(t.speed)} уз, порывы ${fmtNum(t.gust)}`,
-              `Пролив шириной 1 км — ${fmtNum(1 / v.res, 2)} ячейки`,
-              c && c.land && !Bay.isLand(p.x, p.y) ? 'Яхта на воде, но для модели эта ячейка — суша: трение и ветер как на берегу.' : null,
+              `Пролив шириной 1 км занимает ${fmtNum(1 / v.res, 2)} ячейки`,
+              c && c.land && !Bay.isLand(p.x, p.y) ? 'Яхта на воде, но модель считает эту ячейку сушей: трение и ветер как на берегу.' : null,
             ];
           },
         };
@@ -4170,8 +4216,8 @@ globalThis.CHAPTERS = {
       after(view) {
         const lead = view.v.lead, use = Schemes.modelsFor(lead);
         const why = lead <= 2 ? 'Региональные модели ещё считают этот срок и видят бухту, мысы и проливы. Глобальные берут для общей картины: где циклон и фронт.'
-          : lead <= 5 ? 'Самые подробные региональные модели сюда не достают. ICON-EU с сеткой 7 км и глобальные модели показывают, будет ли фронт, бора или циклон, но местный ветер сглажен.'
-            : 'Достают только глобальные модели. Детали ветра у берега на таком сроке не важны: смотрят, придёт ли циклон или фронт и как сходятся модели между собой.';
+          : lead <= 5 ? 'Самые подробные региональные модели так далеко не считают. ICON-EU с сеткой 7 км и глобальные модели показывают, будет ли фронт, бора или циклон, но местный ветер сглажен.'
+            : 'Так далеко считают только глобальные модели. Детали ветра у берега на таком сроке не важны: смотрят, придёт ли циклон или фронт и как сходятся модели между собой.';
         view.mtext.innerHTML = '';
         view.mtext.append(el('div', { class: 'stage-head' }, `${lead < 1 ? 'Через 6 часов' : lead === 1 ? 'Через сутки' : lead === 7 ? 'Через неделю' : `Через ${lead} суток`}: ${use.join(', ')}`), el('div', {}, why));
       },
@@ -4179,7 +4225,7 @@ globalThis.CHAPTERS = {
     {
       id: 't11', num: 11, short: 'Ансамбль', title: 'Ансамбль и разброс', underMap: true,
       controls: [
-        { id: 'scn', type: 'seg', label: 'Ситуация', options: [['summer', 'Антициклон'], ['front', 'Фронт'], ['bora', 'Бора']] },
+        { id: 'scn', type: 'seg', label: 'Ситуация', options: [['summer', 'Летний день'], ['front', 'Холодный фронт'], ['bora', 'Бора']] },
         { id: 'hour', type: 'range', label: 'Время на карте', min: 0, max: 42, step: 0.5, fmt: 'time' },
         { id: 'truth', type: 'toggle', label: 'Показать факт' },
         { id: 'reseed', type: 'button', label: 'Другой факт' },
@@ -4264,9 +4310,9 @@ globalThis.CHAPTERS = {
       this.T = T;
       this.v = { ...T.defaults };
       const C = chapter || { title: T.title, lead: '', before: [], after: [], key: [] };
-      const prose = (arr) => (arr && arr.length ? el('div', { class: 'prose' }, ...arr.map((t) => el('p', {}, t))) : null);
+      const prose = (arr) => (arr && arr.length ? el('div', { class: 'prose' }, ...arr.map((t) => el('p', {}, UI.typo(t)))) : null);
       this.root = el('article', { class: `chapter${T.scheme ? ' chapter-scheme' : ''}`, id: `view-${T.id}` });
-      const head = el('header', { class: 'ch-head' }, el('h1', { class: 'ch-title' }, C.title), C.lead ? el('p', { class: 'ch-lead' }, C.lead) : null);
+      const head = el('header', { class: 'ch-head' }, el('h1', { class: 'ch-title' }, C.title), C.lead ? el('p', { class: 'ch-lead' }, UI.typo(C.lead)) : null);
       const fig = el('figure', { class: 'plate' });
       const stage = el('div', { class: 'plate-stage' });
       this.ctlBox = el('div', { class: 'controls' });
@@ -4275,8 +4321,8 @@ globalThis.CHAPTERS = {
       const under = el('div', { class: 'plate-under' });
       fig.append(stage, this.readout.root, this.ctlBox, this.extraBox, under);
       this.root.append(head, prose(C.before) || '', fig, prose(C.after) || '',
-        C.key && C.key.length ? el('section', { class: 'key', 'aria-label': 'Главное' }, el('h2', {}, 'Главное'), el('ul', {}, ...C.key.map((k) => el('li', {}, k)))) : '',
         T.video ? videoBox(T.video) : '',
+        C.key && C.key.length ? el('section', { class: 'key', 'aria-label': 'Главное' }, el('h2', {}, 'Главное'), el('ul', {}, ...C.key.map((k) => el('li', {}, UI.typo(k))))) : '',
         T.services ? servicesBox() : '');
       root.append(this.root);
       if (T.scheme) {
@@ -4394,7 +4440,7 @@ globalThis.CHAPTERS = {
   const CHECK = [
     { id: 'warn', label: 'Официальный прогноз и предупреждения', opts: ['Предупреждений нет', 'О грозах', 'О сильном ветре', 'Штормовое'],
       ok: (c) => ({ summer: 1, front: 2, bora: 3 })[c.scn] },
-    { id: 'gust', label: 'Порывы на маршруте по P90 ансамбля против предела экипажа', opts: [`Не выше ${LIMITS.gust} уз`, `Выше ${LIMITS.gust} уз`],
+    { id: 'gust', label: 'P90 порывов на маршруте в сравнении с пределом экипажа', opts: [`Не выше ${LIMITS.gust} уз`, `Выше ${LIMITS.gust} уз`],
       ok: (c) => (c.p90 > LIMITS.gust ? 1 : 0) },
     { id: 'local', label: 'Местные поправки', many: true,
       opts: ['Бриз после полудня: у берега плюс 5–10 уз', 'Стоковый ветер из долин ночью и утром', 'Бора: порывы вдвое сильнее среднего', 'Мыс и пролив: скорость ×1,3'],
@@ -4448,7 +4494,7 @@ globalThis.CHAPTERS = {
   }
 
   const sameAns = (Q, a, ok) => (Q.many ? [...(a || [])].sort().join() === [...ok].sort().join() : a === ok);
-  const ansText = (Q, a) => (a == null || (Q.many && !a.length) ? (Q.many ? 'ничего не отмечено' : 'нет ответа') : Q.many ? a.map((i) => Q.opts[i]).join('; ') : Q.opts[a]);
+  const ansText = (Q, a) => (a == null || (Q.many && !a.length) ? (Q.many ? 'ничего не отмечено' : 'нет ответа') : Q.many ? a.map((i, k) => (k ? Q.opts[i][0].toLowerCase() + Q.opts[i].slice(1) : Q.opts[i])).join('; ') : Q.opts[a]);
 
   // Simple yacht performance: speed made good along the course, knots.
   function boatSpeed(tws, twa) {
@@ -4524,8 +4570,10 @@ globalThis.CHAPTERS = {
       this.panel.append(this.stepper, this.body);
       this.root.append(
         el('header', { class: 'ch-head' }, el('h1', { class: 'ch-title' }, C.title), C.lead ? el('p', { class: 'ch-lead' }, C.lead) : ''),
-        el('div', { class: 'prose' }, ...(C.before || []).map((t) => el('p', {}, t))),
-        el('div', { class: 'final-grid' }, mapBox, this.panel));
+        this.intro = el('details', { class: 'prose final-intro', open: '' }, el('summary', {}, 'Условия и порядок перехода'), ...(C.before || []).map((t) => el('p', {}, UI.typo(t)))),
+        el('div', { class: 'final-grid' }, mapBox, this.panel),
+        C.after && C.after.length ? el('div', { class: 'prose' }, ...C.after.map((t) => el('p', {}, UI.typo(t)))) : '',
+        C.key && C.key.length ? el('section', { class: 'key', 'aria-label': 'Главное' }, el('h2', {}, 'Главное'), el('ul', {}, ...C.key.map((k) => el('li', {}, UI.typo(k))))) : '');
       root.append(this.root);
       this.map = new MapView(mapBox, { yacht: { x: Bay.MARINA.x, y: Bay.MARINA.y, showWind: false }, mode: 'none', onClick: (p) => this.onMapClick(p) });
       this.hint = el('div', { class: 'map-hint' }, '');
@@ -4584,6 +4632,7 @@ globalThis.CHAPTERS = {
 
     go(step) {
       this.st.step = step;
+      this.intro.open = step === 0; // the conditions stay one click away after the first step
       this.map.follow = false;
       this.stepper.innerHTML = '';
       this.maxStep = Math.max(this.maxStep || 0, step);
@@ -4640,7 +4689,7 @@ globalThis.CHAPTERS = {
 
     // ------------------------------------------------------------ 1 scenario
     stepScenario() {
-      this.hint.textContent = 'Ветер пока не показан: выберите ситуацию. Маршрут — от белого кружка (Марина Тихая) через узкий пролив, мимо мыса на западе к квадрату (Порт Каменка), около 20 миль.';
+      this.hint.textContent = 'Ветер пока не показан: выберите ситуацию. Маршрут ведёт от белого кружка (Марина Тихая) через узкий пролив и мимо мыса на западе к квадрату (Порт Каменка), около 20 миль.';
       this.map.yacht = { x: Bay.MARINA.x, y: Bay.MARINA.y, showWind: false };
       this.map.showCells = false;
       this.map.overlays = { particles: false, colors: false };
@@ -4702,7 +4751,7 @@ globalThis.CHAPTERS = {
       });
       this.meteoNote.innerHTML = '';
       this.meteoNote.append(el('span', { class: 'lg lg-band' }, 'ансамбль P10–P90, 9 км'), el('span', { class: 'lg lg-p90' }, 'P90'),
-        el('span', { class: 'lg lg-mean' }, 'глобальная 9 км'), el('span', { class: 'lg lg-p50' }, 'региональная 2 км'), el('span', { class: 'lg lg-dot' }, 'её порывы'));
+        el('span', { class: 'lg lg-mean' }, 'глобальная 9 км'), el('span', { class: 'lg lg-p50' }, 'региональная 2 км'), el('span', { class: 'lg lg-dot' }, 'порывы региональной 2 км'));
       this.forecastTable(hours);
     }
 
@@ -4742,7 +4791,10 @@ globalThis.CHAPTERS = {
       this.fcTable.innerHTML = '';
       this.fcTable.append(el('div', { class: 'chart-title' }, `Прогноз по часам: ${Bay.areaName(p[0], p[1])}`), el('div', { class: 'fc-scroll' }, tbl));
       const now = tbl.querySelector('.fc-now'), sc = this.fcTable.querySelector('.fc-scroll');
-      if (now && sc) sc.scrollLeft = Math.max(0, now.offsetLeft - sc.clientWidth / 2);
+      if (now && sc) { // centre the current hour, snapped so that no column is half hidden under the row headers
+        const head = tbl.querySelector('th').offsetWidth, colW = now.offsetWidth;
+        sc.scrollLeft = Math.max(0, Math.round((now.offsetLeft - head - (sc.clientWidth - head) / 2) / colW) * colW);
+      }
     }
 
     // ------------------------------------------------------------ 4 route
@@ -4751,7 +4803,7 @@ globalThis.CHAPTERS = {
       this.map.mode = 'route';
       this.map.yacht = { x: Bay.MARINA.x, y: Bay.MARINA.y, showWind: false };
       this.map.setView('top', true);
-      this.hint.textContent = 'Нажимайте на воду, чтобы ставить точки маршрута от белого кружка к квадрату порта. Чтобы пройти пролив, нажмите в него: точки встанут по его оси. Приблизить — «+» или двумя пальцами. Цвет воды — прогноз из блока «Прогноз».';
+      this.hint.textContent = 'Нажимайте на воду, чтобы ставить точки маршрута от белого кружка к квадрату порта. Чтобы пройти пролив, нажмите в него: точки встанут по его оси. Приблизить можно кнопкой «+» или двумя пальцами. Цвет воды показывает прогноз из блока «Прогноз».';
       this.briefHour = this.st.depart;
       this.routeMsg = el('div', { class: 'note', 'aria-live': 'polite' });
       this.planBox = el('div', { class: 'plan' });
@@ -4850,7 +4902,7 @@ globalThis.CHAPTERS = {
         this.forecastTools(false),
         el('p', { class: 'note' }, `Выход ${fmtTime(this.st.depart)}${plan && plan.arrived ? `, прибытие по модели ${fmtTime(plan.arrival)}` : ''}. Порывы на маршруте: модель 2 км ${fmtNum(Math.max(...(plan ? plan.samples.map((q) => q.w.gust) : [0])))} уз, ансамбль P50 ${fmtNum(E.p50 || 0)}, P90 ${fmtNum(E.p90 || 0)} уз. Предел экипажа: средний ${LIMITS.mean}, порывы ${LIMITS.gust} уз.`));
       CHECK.forEach((Q, qi) => {
-        const box = el('div', { class: 'quiz chk-q', role: 'group', 'aria-labelledby': `chk${qi}` }, el('div', { class: 'quiz-q', id: `chk${qi}` }, `${qi + 1}. ${Q.label}`));
+        const box = el('div', { class: 'quiz chk-q', role: 'group', 'aria-labelledby': `chk${qi}` }, el('div', { class: 'quiz-q', id: `chk${qi}` }, `${qi + 1}. ${Q.label}`, Q.many ? el('span', { class: 'chk-many' }, ' (можно несколько)') : ''));
         const btns = Q.opts.map((txt, ai) => {
           const b = el('button', { type: 'button', class: 'quiz-opt', 'aria-pressed': 'false' }, txt);
           b.addEventListener('click', () => {
@@ -4903,7 +4955,7 @@ globalThis.CHAPTERS = {
       const scn = this.scn(), tp = this.truthP(), r = this.st.route;
       this.map.showCells = false;
       this.map.yacht = { x: r[0][0], y: r[0][1], heading: 0 };
-      this.hint.textContent = 'Фактическая погода. Цвет и линии — реальный ветер, а не прогноз.';
+      this.hint.textContent = 'Фактическая погода: цвет и штрихи показывают реальный ветер, а не прогноз.';
       const truthFn = (x, y, t) => Wind.at(x, y, Ens.state(scn, t, tp, 0));
       const res = sail(r, this.st.depart, truthFn, scn.end + 6, 1);
       this.result = res;
@@ -4964,8 +5016,8 @@ globalThis.CHAPTERS = {
           if (e.kind !== 'bora') {
             this.alertBox.hidden = false;
             const prep = this.prepared(e.t);
-            this.alertBox.textContent = prep ? `${fmtTime(e.t)}: ${e.kind === 'squall' ? 'шквал от грозы' : e.text.replace(/,$/, '').toLowerCase()} ${e.area}. Рифы взяты заранее, экипаж готов.` : e.kind === 'squall' ? `${fmtTime(e.t)}: шквал от грозы ${e.area}. В жизни — заранее убрать паруса и уходить от ячейки.`
-              : `${fmtTime(e.t)}: ${e.text.replace(/,$/, '')} ${e.area} — выше предела экипажа (${e.kind === 'gust' ? LIMITS.gust : LIMITS.mean} уз). В жизни — рифы, другой курс или возвращение.`;
+            this.alertBox.textContent = prep ? `${fmtTime(e.t)}: ${e.kind === 'squall' ? 'шквал от грозы' : e.text.replace(/,$/, '').toLowerCase()} ${e.area}. Рифы взяты заранее, экипаж готов.` : e.kind === 'squall' ? `${fmtTime(e.t)}: шквал от грозы ${e.area}. Паруса надо было убрать заранее и уходить от ячейки.`
+              : `${fmtTime(e.t)}: ${e.text.replace(/,$/, '')} ${e.area}, выше предела экипажа (${e.kind === 'gust' ? LIMITS.gust : LIMITS.mean} уз). Нужны рифы, другой курс или возвращение.`;
           }
         }
         if (idx >= res.samples.length - 1) {
@@ -5000,7 +5052,7 @@ globalThis.CHAPTERS = {
       const p10 = Ens.quantile(routeMax, 0.1), p90 = Ens.quantile(routeMax, 0.9);
       const squall = this.events.some((e) => e.kind === 'squall');
       const verdict = !res.arrived ? ['Переход не завершён', 'bad'] : squall || maxG > LIMITS.gust + 10 ? ['Опасный переход', 'bad'] : maxG > LIMITS.gust || maxF > LIMITS.mean ? ['Тяжёлый переход', 'warn'] : ['Безопасный переход', 'ok'];
-      const shown = stay ? [`Остались в марине. Переход в ${fmtTime(this.st.depart)} был бы ${({ ok: 'безопасным', warn: 'тяжёлым', bad: 'опасным' })[verdict[1]]}`, verdict[1] === 'ok' ? 'warn' : 'ok'] : verdict;
+      let shown = stay ? [`Остались в марине. Переход в ${fmtTime(this.st.depart)} был бы ${({ ok: 'безопасным', warn: 'тяжёлым', bad: 'опасным' })[verdict[1]]}`, verdict[1] === 'ok' ? 'warn' : 'ok'] : verdict;
       const c = this.planCtx(), F = this.facts(maxF, maxG), SA = stay ? [] : this.st.sitAns || [];
       const danger = this.events.filter((e) => e.kind === 'squall' || e.kind === 'gust' || e.kind === 'strong');
       const ready = danger.filter((e) => this.prepared(e.t)).length;
@@ -5014,18 +5066,20 @@ globalThis.CHAPTERS = {
           same ? null : el('div', {}, el('span', { class: 'chk-k' }, 'По прогнозу: '), ansText(Q, ok)),
           el('div', {}, el('span', { class: 'chk-k' }, stay ? 'Было бы: ' : 'Было: '), F[Q.id]));
       });
+      // A good outcome after a plan that ignored the forecast is luck, not seamanship: the headline says so.
+      if (!stay && shown[1] === 'ok' && right < 7) shown = [`Без превышений, но в этот раз повезло: чек-лист совпал с прогнозом в ${right} из ${CHECK.length} пунктах`, 'warn'];
 
       const xs = ss.map((s) => s.t), css = Draw.css;
       const ymax = Math.ceil(Math.max(maxG, E.p90.reduce((a, b) => Math.max(a, b), 0), +this.st.est.gust || 0, LIMITS.gust) / 10) * 10 + 5;
       const cv = el('canvas', { class: 'chart', style: 'height:230px' });
       const estM = +this.st.est.mean, estG = +this.st.est.gust;
-      const cmp = (est, f) => (!est ? 'не указан' : Math.abs(est - f) <= 3 ? `${est} уз — точно` : est < f ? `${est} уз — занижен на ${fmtNum(f - est)}` : `${est} уз — завышен на ${fmtNum(est - f)}`);
+      const cmp = (est, f) => (!est ? 'не указан' : Math.abs(est - f) <= 3 ? `${est} уз, точно` : est < f ? `${est} уз, занижен на ${fmtNum(f - est)}` : `${est} уз, завышен на ${fmtNum(est - f)}`);
 
       this.body.append(...[
         el('div', { class: `verdict v-${shown[1]}` }, shown[0]),
         el('dl', { class: 'score' },
           el('dt', {}, 'Чек-лист'), el('dd', {}, `${right} из ${CHECK.length} совпадают с прогнозом`),
-          stay ? null : el('dt', {}, 'Решения в пути'), stay ? null : el('dd', {}, SA.length ? `${SA.filter((a) => a.score === 2).length} из ${SA.length} верные` : 'ситуаций не было'),
+          stay ? null : el('dt', {}, 'Решения в пути'), stay ? null : el('dd', {}, SA.length ? `${SA.filter((a) => a.score === 2).length} из ${SA.length} ${UI.plural(SA.filter((a) => a.score === 2).length, 'верное', 'верных', 'верных')}` : 'ситуаций не было'),
           stay || !danger.length ? null : el('dt', {}, 'Готовность'), stay || !danger.length ? null : el('dd', {}, `экипаж был готов к ${ready} из ${danger.length} опасных моментов`)),
         SA.length ? el('h3', {}, 'Решения в пути') : null,
         SA.length ? el('div', { class: 'chk-list' }, ...SA.map((a) => el('div', { class: `chk-item ${a.score === 2 ? 'chk-ok' : 'chk-bad'}` },
@@ -5043,7 +5097,7 @@ globalThis.CHAPTERS = {
           el('tr', {}, el('td', {}, 'Ваш прогноз'), el('td', {}, cmp(estM, maxF)), el('td', {}, cmp(estG, maxG)))),
         el('div', { class: 'chart-box' }, el('div', { class: 'chart-title' }, 'Ветер вдоль пройденного пути, уз'), cv,
           el('div', { class: 'legend' }, el('span', { class: 'lg lg-truth' }, 'факт, средний'), el('span', { class: 'lg lg-truthg' }, 'факт, порывы'),
-            el('span', { class: 'lg lg-p50' }, 'модель 2 км, порывы'), el('span', { class: 'lg lg-band' }, 'ансамбль порывов P10–P90'), el('span', { class: 'lg lg-limit' }, 'предел экипажа'),
+            el('span', { class: 'lg lg-mean' }, 'модель 2 км, порывы'), el('span', { class: 'lg lg-band' }, 'ансамбль порывов P10–P90'), el('span', { class: 'lg lg-limit' }, 'предел экипажа'),
             estG ? el('span', { class: 'lg lg-est' }, 'ваш прогноз порывов') : null, this.events.length ? el('span', { class: 'lg lg-ev' }, 'событие журнала') : null)),
         el('h3', {}, 'Сбылся ли прогноз'),
         el('ul', { class: 'theory' }, ...this.explain(ss, fact, reg, maxG, p10, p90).map((t) => el('li', {}, t))),
@@ -5064,7 +5118,7 @@ globalThis.CHAPTERS = {
         hlines: [{ y: LIMITS.gust, color: css('--danger'), dash: [3, 3] }, ...(estG ? [{ y: estG, color: css('--est'), dash: [2, 3] }] : [])],
         lines: [
           { xs, ys: reg.map((w) => w.gust), color: css('--ink'), width: 1.5, dash: [5, 4] },
-          { xs, ys: fact.map((w) => w.gust), color: css('--accent'), width: 1.2 },
+          { xs, ys: fact.map((w) => w.gust), color: css('--accent'), width: 2, dash: [2, 3] },
           { xs, ys: fact.map((w) => w.speed), color: css('--accent'), width: 3 },
         ],
         marks: evMarks,
@@ -5102,13 +5156,13 @@ globalThis.CHAPTERS = {
       return {
         warn: scn.id === 'summer' ? (T ? 'Гроза была.' : 'Гроза не развилась.') : scn.id === 'bora' ? `Бора, порывы на маршруте до ${fmtNum(maxG)} уз.` : `Фронт прошёл у мыса в ${fmtTime(frontAtCape(scn, tp))}.`,
         gust: `Средний до ${fmtNum(maxF)} уз, порывы до ${fmtNum(maxG)} уз.`,
-        local: local.length ? `${local.join(', ')}.` : 'Местные эффекты на маршруте были слабыми.',
+        local: local.length ? `${local.join(', ')[0].toUpperCase()}${local.join(', ').slice(1)}.` : 'Местные эффекты на маршруте были слабыми.',
         front, storm,
         fog: 'Тумана не было.',
         shelter: over.length ? `Пределы экипажа превышены ${over.length} раз: запасной вариант был нужен.` : 'Не понадобились.',
         reef: `Порывы до ${fmtNum(maxG)} уз.`,
-        window: win.length ? `Без превышения пределов можно было выйти: ${win.map(([a, b]) => (a === b ? fmtTime(a) : `${fmtTime(a)}–${fmtTime(b)}`)).join(', ')}.` : 'Безопасного времени выхода с этим маршрутом не было.',
-        watch: this.events.length ? `Первое событие в журнале: ${fmtTime(this.events[0].t)} ${this.events[0].text.replace(/,$/, '')} ${this.events[0].area}.` : 'Событий в журнале не было.',
+        window: win.length ? `Без превышения пределов можно было выйти в ${win.map(([a, b]) => (a === b ? fmtTime(a) : `${fmtTime(a)}–${fmtTime(b)}`)).join(', ')}.` : 'Безопасного времени выхода с этим маршрутом не было.',
+        watch: this.events.length ? `Первое событие журнала в ${fmtTime(this.events[0].t)}, ${this.events[0].text.replace(/,$/, '').toLowerCase()} ${this.events[0].area}.` : 'Событий в журнале не было.',
       };
     }
     safeWindows() {
@@ -5129,7 +5183,7 @@ globalThis.CHAPTERS = {
     advice() {
       const ranges = this.safeWindows(), out = [];
       const inWin = ranges.some(([a, b]) => this.st.depart >= a && this.st.depart <= b);
-      if (!ranges.length) out.push(this.st.decision === 'stay' ? 'Безопасного времени выхода с этим маршрутом не было: остаться в марине было верно.' : 'Безопасного времени выхода с этим маршрутом не было: правильное решение — остаться в марине.');
+      if (!ranges.length) out.push(this.st.decision === 'stay' ? 'Безопасного времени выхода с этим маршрутом не было, остаться в марине было верно.' : 'Безопасного времени выхода с этим маршрутом не было, правильно было остаться в марине.');
       else if (this.st.decision === 'stay') out.push(inWin ? `Выход в ${fmtTime(this.st.depart)} прошёл бы без превышения пределов. Решение остаться было осторожнее, чем требовалось в этот раз.` : `Выход в ${fmtTime(this.st.depart)} превысил бы пределы экипажа.`);
       else if (!inWin) out.push(`Ваш выход в ${fmtTime(this.st.depart)} в безопасное окно не попал.`);
       out.push('Это видно только задним числом. Перед выходом решение принимают по прогнозу: по P90 ансамбля, предупреждениям и местным поправкам.');
@@ -5152,11 +5206,11 @@ globalThis.CHAPTERS = {
           ['cape', (w.mods.cape || 0) - (M.mods.cape || 0) > 0.3 ? w.speed * 0.2 : 0],
         ].filter((c) => c[1] > 2.5).sort((a, b) => b[1] - a[1]).slice(0, 2);
         const TXT = {
-          storm: 'Причина — шквал от грозы: в контрольном прогнозе ячейки здесь в это время не было. Модель показывает условия для гроз, но не место и время.',
-          bora: 'Причина — струя боры: под перевалами и на выходе из пролива ветер сильнее, чем в ячейках модели.',
-          breeze: 'Причина — бриз: в этот день он был сильнее или начался раньше, чем в модели.',
-          kat: 'Причина — стоковый ветер из долины: модели занижают катабатические ветры в 1,5–2 раза.',
-          syn: 'Причина — фон: синоптический ветер в этот день был сильнее, чем в контрольном прогнозе. Это ошибка начальных данных, её показывает разброс ансамбля.',
+          storm: 'Порывы дал шквал от грозы. В контрольном прогнозе ячейки здесь в это время не было: модель показывает условия для гроз, но не место и время.',
+          bora: 'Порывы дала струя боры. Под перевалами и на выходе из пролива ветер сильнее, чем в ячейках модели.',
+          breeze: 'Ветер усилил бриз. В этот день он был сильнее или начался раньше, чем в модели.',
+          kat: 'Ветер усилил стоковый поток из долины. Модели занижают такие ветры в 1,5–2 раза.',
+          syn: 'Синоптический ветер в этот день был сильнее, чем в контрольном прогнозе. Это ошибка начальных данных, её показывает разброс ансамбля.',
           strait: 'Пролив Узкий шириной 1 км меньше ячейки модели: воронка усилила ветер и развернула его вдоль пролива.',
           cape: 'У мыса поток ускоряется на 20–40 %, а в модели этого почти нет.',
         };
@@ -5176,7 +5230,7 @@ globalThis.CHAPTERS = {
       if (scn.id === 'summer') {
         const T = scn.stateAt(16, this.truthP()).storm;
         const hitSq = this.events.find((e) => e.kind === 'squall');
-        if (!T) out.push(`В этот день гроза не развилась, хотя ансамбль давал её в ${this.mem.filter((p) => scn.stateAt(16, p).storm).length} из 30 сценариев. Планировать на грозу всё равно было правильно: решение принимают по прогнозу, а не по факту.`);
+        if (!T) out.push(`В этот день гроза не развилась, хотя ансамбль давал её в ${this.mem.filter((p) => scn.stateAt(16, p).storm).length} из 30 прогонов. Планировать на грозу всё равно было правильно: решение принимают по прогнозу, а не по факту.`);
         else if (hitSq) out.push(`Гроза развилась около ${fmtTime(T.tStart)} и застала яхту: шквал в ${fmtTime(hitSq.t)} ${hitSq.area}.`);
         else out.push(`Гроза развилась около ${fmtTime(T.tStart)}, сильнее всего была около ${fmtTime(T.tPeak)}; яхта с ней разминулась.`);
       }
@@ -5257,7 +5311,7 @@ globalThis.CHAPTERS = {
     for (const [k, v] of Object.entries(views)) v.root.hidden = k !== id;
     if (view.map) view.map.activate();
     const cur = ITEMS.find((i) => i.id === id) || REF;
-    tocLabel.textContent = cur.n ? `${cur.n}. ${cur.label}` : cur.label;
+    tocLabel.textContent = cur.n ? `${cur.n}. ${cur.label}` : '';
     for (const a of nav.querySelectorAll('[data-id]')) a.setAttribute('aria-current', a.dataset.id === id ? 'page' : 'false');
     toc.open = false;
     window.scrollTo(0, 0);
@@ -5290,31 +5344,32 @@ globalThis.CHAPTERS = {
       ['Облачная шапка на гребне', 'бора'],
     ];
     const table = (head, rows, cls) => el('div', { class: 'tbl-wrap' }, el('table', { class: `tbl ${cls || ''}` },
-      el('tr', {}, ...head.map((h) => el('th', {}, h))), ...rows.map((r) => el('tr', {}, ...r.map((c) => el('td', {}, c))))));
+      el('tr', {}, ...head.map((h) => el('th', {}, h))), ...rows.map((r) => el('tr', {}, ...r.map((c) => el('td', {}, UI.typo(c)))))));
+    const barbs = el('canvas', { class: 'barb-key', width: 760, height: 150, role: 'img', 'aria-label': 'Флажки ветра: 5, 10, 15, 25 и 50 узлов' });
     const sec = el('section', { class: 'ref', id: 'view-ref' },
       el('header', { class: 'ch-head' }, el('h1', { class: 'ch-title' }, 'Справка'), el('p', { class: 'ch-lead' }, 'Шкала Бофорта, поправки к прогнозу, признаки изменения погоды и слова из глав.')),
       el('div', { class: 'ref-grid' },
         el('div', {}, el('h3', {}, 'Шкала Бофорта'), table(['Балл', 'Название', 'Узлы', 'Волна, м', 'Состояние моря'], bf, 'bf'),
-          el('p', { class: 'note' }, 'Средний ветер за 10 минут на высоте 10 м. 1 узел = 1,852 км/ч = 0,514 м/с; 10 м/с ≈ 20 уз. Порывы на 20–40 % сильнее среднего, в боре и при шквалах вдвое.')),
+          el('p', { class: 'note' }, 'Средний ветер за 10 минут на высоте 10 м. 1 узел = 1,852 км/ч = 0,514 м/с; 10 м/с ≈ 20 уз. Порывы на 20–40 % сильнее среднего, в боре и при шквалах вдвое.'),
+          el('h3', {}, 'Как читать флажок ветра'), barbs, el('p', { class: 'note' }, 'Слева направо: 5, 10, 15, 25 и 50 узлов. Ветер на всех флажках северо-восточный: древко смотрит туда, откуда он дует.')),
         el('div', {}, el('h3', {}, 'Поправки к прогнозу модели'), table(['Ситуация', 'Поправка'], fixes),
           el('h3', {}, 'Признаки изменения погоды'), table(['Наблюдение', 'Ожидание'], signs))));
     // How to read the symbols, and the words used in the trainer.
-    const barbs = el('canvas', { class: 'barb-key', width: 760, height: 150, role: 'img', 'aria-label': 'Флажки ветра: 5, 10, 15, 25 и 50 узлов' });
     const gl = [
       ['Флажок ветра', 'Древко указывает, откуда дует ветер. Короткое перо 5 уз, длинное 10 уз, треугольник 50 уз.'],
-      ['Стрелки на карте', 'Показывают, куда дует ветер, как в большинстве приложений. Цвет воды — средний ветер.'],
+      ['Цвет воды и штрихи на карте', 'Цвет показывает средний ветер, бегущие штрихи показывают поток. Стрелки в таблице прогноза, как в большинстве приложений, показывают, куда дует ветер.'],
       ['Геострофический ветер', 'Ветер на высоте, где нет трения: дует вдоль изобар. У поверхности он слабее и повёрнут к низкому давлению.'],
-      ['Изобары, H и L', 'Линии одинакового давления. H — антициклон (высокое давление), L — циклон (низкое). Чем гуще изобары, тем сильнее ветер.'],
-      ['Ротор', 'Вихрь с горизонтальной осью под высоким берегом: штиль и порывы с разных направлений.'],
+      ['Изобары, H и L', 'Линии одинакового давления. H означает антициклон (высокое давление), L циклон (низкое). Чем гуще изобары, тем сильнее ветер.'],
+      ['Ветровая волна и зыбь', 'Ветровую волну поднимает местный ветер, она короткая и крутая. Зыбь приходит издалека, она пологая.'],
+      ['Ротор', 'Вихрь с горизонтальной осью под высоким берегом, с которого дует ветер: штиль и порывы с разных направлений.'],
       ['Ячейка модели', 'Квадрат сетки модели. Модель даёт среднее по ячейке, а не значение в точке.'],
-      ['CAPE', 'Энергия неустойчивости атмосферы. Высокий CAPE — условия для гроз.'],
-      ['Ансамбль, P10, P50, P90', 'Модель считают 30–50 раз с разными начальными условиями. P50 — медиана: половина сценариев выше, половина ниже. P90 — выше только 10 % сценариев; по нему планируют.'],
-      ['Контрольный прогноз', 'Расчёт ансамбля без возмущений, обычный прогноз модели.'],
-      ['Время «+1»', 'На графиках «6:00+1» — 06:00 следующего дня.'],
+      ['CAPE', 'Энергия неустойчивости атмосферы. При высоком CAPE возможны грозы.'],
+      ['Ансамбль, P10, P50, P90', 'Модель считают 30–50 раз с разными начальными условиями. P50, медиана: половина прогонов выше, половина ниже. P90 превышают только 10 % прогонов, по нему планируют.'],
+      ['Контрольный прогноз', 'Прогон ансамбля без изменений начальных условий, обычный прогноз модели.'],
+      ['Время «+1»', 'На графиках «6:00+1» означает 06:00 следующего дня.'],
     ];
-    sec.append(el('div', { class: 'ref-grid' },
-      el('div', {}, el('h3', {}, 'Как читать флажок ветра'), barbs, el('p', { class: 'note' }, 'Слева направо: 5, 10, 15, 25 и 50 узлов. Ветер на всех флажках северо-восточный: древко смотрит туда, откуда он дует.')),
-      el('div', {}, el('h3', {}, 'Слова, которые встречаются в тренажёре'), el('dl', { class: 'glossary' }, ...gl.flatMap(([t, d]) => [el('dt', {}, t), el('dd', {}, d)])))));
+    sec.append(el('div', { class: 'ref-gloss' }, el('h3', {}, 'Слова, которые встречаются в тренажёре'),
+      el('dl', { class: 'glossary' }, ...gl.flatMap(([t, d]) => [el('dt', {}, t), el('dd', {}, UI.typo(d))]))));
     root.append(sec);
     requestAnimationFrame(() => {
       const c = barbs.getContext('2d'); c.setTransform(2, 0, 0, 2, 0, 0); c.clearRect(0, 0, 380, 75);

@@ -389,16 +389,34 @@ footer.foot { max-width: var(--measure); margin: 0 auto; padding: 0 16px 32px; f
 .chk-many { font-weight: 400; color: var(--muted); }
 @media (min-width: 700px) { .controls .ctl-wide { grid-column: span 2; } }
 
+/* Title page */
+.cover { max-width: var(--wide); margin: 0 auto; min-height: calc(100svh - 160px); display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 48px; padding: 48px 0; }
+.cover-title { font: 600 clamp(48px, 9vw, 104px)/1 var(--f-text); letter-spacing: -0.02em; margin: 0; }
+.cover-lead { font: italic 400 clamp(20px, 2.2vw, 26px)/1.4 var(--f-text); color: var(--muted); margin: 22px 0 32px; max-width: 30ch; text-wrap: pretty; }
+.cover-start { font-size: 16px; padding: 11px 18px; }
+.cover-code { margin: 0; display: grid; justify-items: center; gap: 12px; }
+.cover-qr { display: block; width: 240px; border: 1px solid var(--rule); background: #fff; }
+.cover-qr svg { display: block; width: 100%; height: auto; }
+.cover-code figcaption { display: grid; justify-items: center; gap: 2px; font-size: 15px; color: var(--muted); }
+.cover-code figcaption a { color: var(--ink); text-decoration: none; }
+@media (max-width: 700px) {
+  .cover { grid-template-columns: 1fr; gap: 36px; padding: 32px 0; min-height: 0; }
+  .cover-code { justify-items: start; }
+  .cover-code figcaption { justify-items: start; }
+  .cover-qr { width: 180px; }
+}
+
 </style>
 </head>
 <body>
 <header class="top">
   <div class="top-inner">
-    <a class="brand" href="#heat">Ветер у берега</a>
+    <a class="brand" href="#cover">Ветер у берега</a>
     <div id="nav" class="top-nav"></div>
   </div>
 </header>
 <main id="main"></main>
+<template id="qr-svg"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37 37" class="qr"><path fill="#fff" d="M0 0h37v37h-37z"/><path stroke="#1b2a3a" d="M2 2.5h7m5 0h1m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m2 0h7m-33 1h1m5 0h1m1 0h2m1 0h3m1 0h1m1 0h1m2 0h1m1 0h3m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m1 0h1m8 0h3m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m5 0h3m1 0h1m1 0h1m3 0h1m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m2 0h3m1 0h1m6 0h3m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m2 0h7m1 0h5m2 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-24 1h4m4 0h1m1 0h1m2 0h3m-24 1h3m1 0h2m2 0h1m1 0h8m2 0h3m6 0h2m-31 1h3m1 0h1m1 0h5m5 0h5m1 0h1m2 0h2m1 0h4m-32 1h1m1 0h5m1 0h1m1 0h3m1 0h2m1 0h1m2 0h1m1 0h2m1 0h4m1 0h2m-32 1h2m1 0h2m2 0h1m2 0h5m1 0h1m1 0h2m1 0h1m3 0h2m1 0h1m2 0h1m-33 1h1m2 0h1m1 0h8m9 0h4m1 0h3m1 0h2m-32 1h2m5 0h2m2 0h3m2 0h1m1 0h3m5 0h1m3 0h1m-28 1h1m1 0h2m1 0h5m1 0h2m2 0h1m1 0h1m4 0h5m-31 1h1m4 0h1m1 0h1m3 0h3m4 0h2m1 0h1m3 0h2m1 0h3m-30 1h1m4 0h1m1 0h3m3 0h3m1 0h1m2 0h3m1 0h2m1 0h3m-24 1h2m2 0h2m2 0h2m3 0h1m1 0h5m1 0h2m1 0h2m-33 1h2m2 0h1m1 0h2m1 0h1m1 0h4m1 0h1m1 0h1m2 0h1m2 0h5m1 0h1m-31 1h1m3 0h1m2 0h2m1 0h1m2 0h1m1 0h4m1 0h1m1 0h1m2 0h1m2 0h1m2 0h1m-31 1h2m1 0h1m1 0h2m3 0h2m2 0h1m1 0h2m1 0h2m2 0h1m4 0h2m1 0h1m-33 1h6m1 0h1m2 0h4m5 0h3m1 0h1m2 0h2m4 0h1m-31 1h1m1 0h1m1 0h1m2 0h1m1 0h2m4 0h2m2 0h4m6 0h2m-32 1h2m1 0h1m2 0h1m1 0h2m1 0h1m1 0h4m1 0h2m2 0h1m3 0h3m1 0h1m-32 1h1m3 0h3m1 0h1m1 0h2m2 0h1m1 0h1m5 0h1m1 0h5m2 0h2m-25 1h1m4 0h2m1 0h1m1 0h2m1 0h1m2 0h1m3 0h2m-30 1h7m3 0h1m2 0h2m1 0h1m2 0h1m2 0h3m1 0h1m1 0h1m-29 1h1m5 0h1m1 0h1m3 0h1m1 0h2m4 0h5m3 0h4m-32 1h1m1 0h3m1 0h1m2 0h3m1 0h3m2 0h1m1 0h9m1 0h1m-31 1h1m1 0h3m1 0h1m1 0h2m2 0h1m2 0h1m1 0h2m1 0h3m4 0h1m1 0h4m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h6m4 0h1m1 0h2m1 0h2m-28 1h1m5 0h1m1 0h1m1 0h2m2 0h1m1 0h1m2 0h1m2 0h1m1 0h1m1 0h3m3 0h1m-33 1h7m2 0h3m5 0h1m2 0h2m1 0h1m4 0h1m1 0h1"/></svg></template>
 <footer class="foot">Бухта Тихая вымышленная. Ветер рассчитан упрощённой моделью по правилам из лекции «Прогноз погоды». Для учёбы, не для навигации.</footer>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -5277,6 +5295,7 @@ globalThis.CHAPTERS = {
     { id: 'final', label: (CH.final || {}).title || 'Итоговый переход' },
   ].map((it, i) => ({ ...it, n: i + 1 }));
   const REF = { id: 'ref', label: 'Справка' };
+  const SITE = 'https://idrigo.github.io/wind-coast-trainer/';
   const toc = el('details', { class: 'toc' });
   const tocLabel = el('span', { class: 'toc-label' });
   const tocList = el('ol', { class: 'toc-list' }, ...ITEMS.map((it) => el('li', {}, el('a', { href: `#${it.id}`, 'data-id': it.id }, it.label))));
@@ -5294,7 +5313,8 @@ globalThis.CHAPTERS = {
   function ensure(id) {
     if (views[id]) return views[id];
     const k = ITEMS.findIndex((it) => it.id === id);
-    if (id === 'final') views[id] = new globalThis.Final.FinalView(main);
+    if (id === 'cover') views[id] = { root: cover(main) };
+    else if (id === 'final') views[id] = new globalThis.Final.FinalView(main);
     else if (id === 'ref') views[id] = { root: reference(main) };
     else views[id] = new TopicView(main, TOPICS.find((t) => t.id === id), CH[id]);
     if (k >= 0) {
@@ -5306,15 +5326,30 @@ globalThis.CHAPTERS = {
   }
 
   function show(id) {
-    if (id !== 'ref' && !ITEMS.some((i) => i.id === id)) id = ITEMS[0].id;
+    if (id !== 'ref' && !ITEMS.some((i) => i.id === id)) id = 'cover';
     const view = ensure(id);
     for (const [k, v] of Object.entries(views)) v.root.hidden = k !== id;
     if (view.map) view.map.activate();
-    const cur = ITEMS.find((i) => i.id === id) || REF;
-    tocLabel.textContent = cur.n ? `${cur.n}. ${cur.label}` : '';
+    const cur = ITEMS.find((i) => i.id === id);
+    tocLabel.textContent = cur ? `${cur.n}. ${cur.label}` : '';
     for (const a of nav.querySelectorAll('[data-id]')) a.setAttribute('aria-current', a.dataset.id === id ? 'page' : 'false');
     toc.open = false;
     window.scrollTo(0, 0);
+  }
+
+  // Title page: course name, start link and a QR code to the hosted copy.
+  function cover(root) {
+    const qr = el('a', { class: 'cover-qr', href: SITE, 'aria-label': `QR-код: ${SITE}` });
+    qr.append(document.getElementById('qr-svg').content.cloneNode(true));
+    const sec = el('section', { class: 'cover', id: 'view-cover' },
+      el('div', { class: 'cover-text' },
+        el('h1', { class: 'cover-title' }, 'Ветер у\u00a0берега'),
+        el('p', { class: 'cover-lead' }, UI.typo('Местные ветры и прогноз погоды для капитанов. Тренажёр к\u00a0лекции «Прогноз погоды».')),
+        el('a', { class: 'btn primary cover-start', href: `#${ITEMS[0].id}` }, `Глава 1. ${ITEMS[0].label}`)),
+      el('figure', { class: 'cover-code' }, qr,
+        el('figcaption', {}, el('span', {}, 'Открыть на телефоне'), el('a', { href: SITE }, SITE.replace('https://', '').replace(/\/$/, '')))));
+    root.append(sec);
+    return sec;
   }
 
   function reference(root) {
@@ -5380,7 +5415,7 @@ globalThis.CHAPTERS = {
 
   globalThis.Trainer = { views }; // for automated checks
   window.addEventListener('hashchange', () => show(location.hash.slice(1)));
-  show(location.hash.slice(1) || ITEMS[0].id);
+  show(location.hash.slice(1) || 'cover');
   // Redraw maps when fonts arrive or the theme changes.
   const redraw = () => { for (const v of document.querySelectorAll('.map-wrap')) v.dispatchEvent(new Event('themechange')); };
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(redraw);

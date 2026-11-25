@@ -160,7 +160,7 @@
     let kat = [0, 0];
     if (E.katabatic) {
       const sun = S.sun ?? 1;
-      const kn = katNight(h) * sun * clamp(1 - G / 15, 0, 1) * scaleMeso(res);
+      const kn = katNight(h) * sun * clamp(1 - G / 15, 0, 1) * scaleMeso(res) * (S.kat ?? 1); // S.kat: night strength factor
       const dv = breezeDay(h) * sun * clamp(1 - G / 20, 0, 1) * scaleMeso(res);
       const sdist = Bay.sd(x, y);
       if (kn > 0) {

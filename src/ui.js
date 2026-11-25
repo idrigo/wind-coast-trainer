@@ -42,7 +42,8 @@
         wrap.append(b);
       }
       set(value);
-      return el('div', { class: 'ctl' }, el('div', { class: 'ctl-label' }, def.label), wrap);
+      const wide = def.options.map((o) => String(o[1])).join('').length > 24; // long option set: give it two grid columns
+      return el('div', { class: wide ? 'ctl ctl-wide' : 'ctl' }, el('div', { class: 'ctl-label' }, def.label), wrap);
     }
     if (def.type === 'button') {
       return el('button', { type: 'button', class: 'btn', onclick: () => onChange() }, def.label);
@@ -126,7 +127,9 @@
     }
     for (let x = Math.ceil(o.x0 / o.xstep) * o.xstep; x <= o.x1 + 1e-6; x += o.xstep) {
       c.beginPath(); c.moveTo(X(x), T); c.lineTo(X(x), h - B); c.stroke();
-      c.textAlign = 'center'; c.fillText(o.xfmt ? o.xfmt(x) : String(x), X(x), h - B + 15);
+      const lab = o.xfmt ? o.xfmt(x) : String(x), half = c.measureText(lab).width / 2;
+      // Keep edge labels inside the canvas instead of cutting them.
+      if (X(x) + half > w - 1) { c.textAlign = 'right'; c.fillText(lab, w - 1, h - B + 15); } else { c.textAlign = 'center'; c.fillText(lab, X(x), h - B + 15); }
     }
     c.save(); c.beginPath(); c.rect(L, T, w - L - R, h - T - B); c.clip();
     for (const b of o.bands || []) {
@@ -158,5 +161,11 @@
     if (o.ylabel) { c.fillStyle = css('--muted'); c.textAlign = 'left'; c.fillText(o.ylabel, L + 4, T + 10); }
   }
 
-  globalThis.UI = { el, fmtTime, fmtNum, fmtDir, control, Readout, chart, bfWord };
+  // Russian plural form for an integer: plural(3, 'миля', 'мили', 'миль').
+  function plural(v, one, few, many) { const n = Math.abs(Math.round(v)), d = n % 10, dd = n % 100; return dd >= 11 && dd <= 14 ? many : d === 1 ? one : d >= 2 && d <= 4 ? few : many; }
+  // Keep numbers with their units and ranges on one line: "100 м", "1–7 км", "за 3 ч", "Swiss HD".
+  const typo = (t) => (typeof t === 'string'
+    ? t.replace(/(\d) (?=[^\s\d])/g, '$1\u00a0').replace(/(\d)–(?=\d)/g, '$1\u2060–\u2060').replace(/Swiss HD/g, 'Swiss\u00a0HD').replace(/ (—|−) /g, '\u00a0$1 ')
+    : t);
+  globalThis.UI = { el, fmtTime, fmtNum, fmtDir, control, Readout, chart, bfWord, plural, typo };
 })();

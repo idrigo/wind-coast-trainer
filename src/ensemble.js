@@ -68,6 +68,15 @@
         return { G: Math.max(0, 8 * (1 + 0.3 * p.s2 * l)), Gdir: 40 + 10 * p.d * l, hour: h, sun: 0.3, bora: Bo, p0: 1024 };
       },
     },
+    night: {
+      id: 'night', name: 'Ночная стоянка', season: 'Август, антициклон',
+      start: 18, end: 32, depart: [20, 20], departDefault: 20,
+      stateAt(h, p) {
+        const l = L(h);
+        // Clear calm night: the katabatic flow from the valleys is the whole story. kat scales its strength.
+        return { G: Math.max(0, 3 * (1 + 0.4 * p.s * l)), Gdir: (20 + 30 * p.d * l + 360) % 360, hour: h, sun: 1, p0: 1020, kat: 4 * (1 + 0.12 * p.t * l) };
+      },
+    },
     front: {
       id: 'front', name: 'Холодный фронт', season: 'Октябрь, циклон над морем',
       start: 4, end: 26, depart: [4, 18], departDefault: 9,

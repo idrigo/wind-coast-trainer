@@ -219,7 +219,10 @@
       c.strokeStyle = lv === 1012 ? 'rgba(40,55,80,0.65)' : 'rgba(40,55,80,0.42)'; c.lineWidth = lv % 8 === 0 ? 1.6 : 1.1;
       c.beginPath(); for (const [a, b] of seg) { c.moveTo(a[0], a[1]); c.lineTo(b[0], b[1]); } c.stroke();
       const s0 = seg[Math.floor(seg.length * 0.37)][0];
-      const nearC = [F.Lc, F.Hc].some((C0) => Math.hypot(s0[0] - X(C0.x), s0[1] - Y(C0.y)) < 46);
+      // Skip labels next to the centres, the fronts and the observer, so nothing is printed over them.
+      const dSeg = (px, py, [ax, ay], [bx, by]) => { const vx = bx - ax, vy = by - ay, u = clamp(((px - ax) * vx + (py - ay) * vy) / (vx * vx + vy * vy), 0, 1); return Math.hypot(px - ax - u * vx, py - ay - u * vy); };
+      const nearF = [wf, cf].some((ln) => ln.slice(1).some((q, k) => dSeg(s0[0], s0[1], [X(ln[k][0]), Y(ln[k][1])], [X(q[0]), Y(q[1])]) < 16));
+      const nearC = nearF || Math.hypot(s0[0] - p.point[0] * w, s0[1] - p.point[1] * h) < 70 || [F.Lc, F.Hc].some((C0) => Math.hypot(s0[0] - X(C0.x), s0[1] - Y(C0.y)) < 46);
       if (!nearC && s0[0] > 20 && s0[0] < w - 40 && s0[1] > 20 && s0[1] < h - 20) txt(c, String(lv), s0[0], s0[1] + 4, { size: 12, color: P.grey, halo: '#e6eff6', align: 'center' });
     }
     // Fronts: warm (semicircles) and cold (triangles), symbols on the side the front moves to.
@@ -257,8 +260,9 @@
     c.fillStyle = 'rgba(224,82,10,0.18)'; c.beginPath(); c.arc(ox, oy, 26, 0, Math.PI * 2); c.fill();
     barb(c, ox, oy, q.dir, Math.min(65, q.speed), 40, P.orange);
     c.fillStyle = P.orange; c.beginPath(); c.arc(ox, oy, 4.5, 0, Math.PI * 2); c.fill();
-    tag(c, `${fmt1(pr)} гПа · ${q.dir == null ? 'штиль' : `${Wind.compass(q.dir)} ${fmt(q.speed)} уз`}`, ox, oy - 30, P.ink);
-    txt(c, p.surface ? (w < 600 ? 'у поверхности: 0,75 от изобарного, поворот 15° к L' : 'ветер у поверхности над морем: 0,75 от изобарного, поворот 15° к L') : 'ветер на высоте: вдоль изобар, L слева', 8, h - 10, { size: 12, color: P.grey, halo: '#e6eff6' });
+    const nearL = Math.hypot(ox - X(F.Lc.x), oy - 30 - Y(F.Lc.y)) < 80 || oy < 50;
+    tag(c, `${fmt1(pr)} гПа, ${q.dir == null ? 'штиль' : `${Wind.compass(q.dir)} ${fmt(q.speed)} уз`}`, ox, nearL ? oy + 48 : oy - 30, P.ink);
+    txt(c, p.surface ? (w < 600 ? 'у поверхности: 0,75 от ветра на высоте, поворот 15° к L' : 'ветер у поверхности над морем: 0,75 от ветра на высоте, поворот 15° к L') : 'ветер на высоте: вдоль изобар, L слева', 8, h - 10, { size: 12, color: P.grey, halo: '#e6eff6' });
     p._out = { pr, q };
   }
 
@@ -287,7 +291,7 @@
   const FRONT_TEXT = {
     warm: [
       ['за 12–24 ч', 'Перистые облака сгущаются, гало вокруг солнца. Давление начинает падать.'],
-      ['за 3–10 ч', 'Высокослоистые, затем слоисто-дождевые облака. Непрерывный дождь, морось. Ветер усиливается до 10–15 уз и отступает к SE.'],
+      ['за 3–10 ч', 'Высокослоистые, затем слоисто-дождевые облака. Непрерывный дождь, морось. Ветер усиливается до 10–15 уз и поворачивает влево, к SE.'],
       ['прохождение', 'Дождь кончается, ветер заходит вправо на SW. Давление перестаёт падать, теплеет.'],
       ['после', 'Тёплый сектор: низкая слоистая облачность, морось, плохая видимость, туман над холодной водой.'],
     ],
@@ -397,7 +401,8 @@
       flow(c, [[HX(-2.5), Z(0.05)], [HX(5), yWF(HX(5)) - Hs * 0.07], [HX(12), yWF(HX(12)) - Hs * 0.07], [HX(18), yWF(HX(18)) - Hs * 0.08]], orange, 2.5, t, 30);
       flow(c, [[HX(21), yWF(HX(21)) + Hs * 0.16], [HX(12), Z(0.08)]], blue, 2.5, t, 25);
       lab('тёплый воздух', HX(-6), Z(nb ? 0.55 : 0.68), { color: '#b0482a', weight: 700, align: 'center' });
-      lab('холодный воздух', HX(15), Z(0.06), { color: blue, weight: 700, align: 'center' });
+      if (nb) { lab('холодный', w - 26, Z(0.17), { color: blue, weight: 700, align: 'right' }); lab('воздух', w - 26, Z(0.09), { color: blue, weight: 700, align: 'right' }); }
+      else lab('холодный воздух', HX(15), Z(0.06), { color: blue, weight: 700, align: 'center' });
       if (!nb) {
         lab('слоисто-дождевые', (n0 + n1) / 2, Z(0.4), { align: 'center', weight: 500 });
         lab('высокослоистые', HX(13.2), Z(0.6), { align: 'center', weight: 500 });
@@ -435,12 +440,25 @@
     c.restore();
     // Weather strip on top, moving with the front.
     c.fillStyle = 'rgba(255,255,255,0.55)'; c.fillRect(0, 0, w, strip);
-    wx.forEach(([hh, str], i) => {
-      const x = HX(hh), size = nb ? 11.5 : 13.5;
-      if (x < -40 || x > w + 40) return;
-      const ls = wrapLines(c, str, nb ? 78 : Math.min(170, w * 0.17), size, 600), y0 = (i % 2 ? (nb ? 44 : 40) : 16) + (ls.length === 1 ? 6 : 0);
-      ls.forEach((ln, k) => txt(c, ln, x, y0 + k * (size + 2), { size, weight: 600, color: P.ink, align: 'center' }));
+    // Labels go in one row; a label near the edge is shifted inside, and one that would touch its neighbour
+    // drops to a second row.
+    const size = nb ? 11.5 : 13.5, maxW = nb ? 78 : Math.min(170, w * 0.17);
+    c.font = FONT(size, 600);
+    let lastRight = -1e9;
+    const boxes = wx.filter(([hh]) => HX(hh) >= -40 && HX(hh) <= w + 40).map(([hh, str]) => {
+      const ls = wrapLines(c, str, maxW, size, 600);
+      c.font = FONT(size, 600);
+      const half = Math.max(...ls.map((ln) => c.measureText(ln).width)) / 2 + 6, x = clamp(HX(hh), half, w - half);
+      const row = x - half < lastRight + 4 ? 1 : 0;
+      if (!row) lastRight = x + half;
+      return { ls, x, row };
     });
+    const two = boxes.some((b) => b.row);
+    for (const { ls, x, row } of boxes) {
+      const yc = !two ? strip * 0.5 : row ? strip * 0.74 : strip * 0.3;
+      const y0 = yc - ((ls.length - 1) * (size + 2)) / 2 + size * 0.35;
+      ls.forEach((ln, k) => txt(c, ln, x, y0 + k * (size + 2), { size, weight: 600, color: P.ink, align: 'center' }));
+    }
     // Ground line: the front and its motion, the yacht in place.
     if (xf > -20 && xf < w + 20) {
       txt(c, warm ? 'тёплый фронт' : occl ? 'окклюзия' : 'холодный фронт', xf - 6, H - 8, { size: nb ? 11 : 12.5, weight: 700, color: '#fff', align: 'right' });
@@ -494,8 +512,8 @@
     const k = day > 0.2 ? day : night > 0.2 ? -night * 0.6 : 0;
     const title = k > 0 ? 'Дневной (морской) бриз' : k < 0 ? 'Ночной (береговой) бриз' : sunf < 0.5 ? 'Облачно: бриза нет' : 'Бриза нет';
     txt(c, title, 14, 26, { size: 17, weight: 700, color: isDay ? P.ink : '#fff' });
-    const seaT = k > 0 ? 'море прохладное · высокое P' : k < 0 ? 'море тёплое · низкое P' : 'море';
-    const landT = k > 0 ? 'суша тёплая · низкое P' : k < 0 ? 'суша холодная · высокое P' : 'суша';
+    const seaT = k > 0 ? 'море прохладное, давление выше (H)' : k < 0 ? 'море тёплое, давление ниже (L)' : 'море';
+    const landT = k > 0 ? 'суша тёплая, давление ниже (L)' : k < 0 ? 'суша холодная, давление выше (H)' : 'суша';
     txt(c, seaT, xc / 2, yb + 30, { size: 13, color: '#fff', align: 'center', weight: 600, max: xc - 12 });
     txt(c, landT, w * 0.76, yb + 30, { size: 13, color: P.ink, align: 'center', weight: 600, max: w * 0.46 });
     const inkB = isDay ? 'rgba(70,80,95,0.8)' : 'rgba(210,220,235,0.85)';
@@ -581,7 +599,9 @@
       const width = 2.5 + 4 * kn, sp = 25 + 70 * kn;
       for (const [f0, f1] of [[0.95, 0.72], [0.66, 0.42], [0.36, 0.12]]) flow(c, [along(f0, 16), along(f1, 16)], '#7fb2ff', width, t, sp);
       flow(c, [[w * 0.17, yb - 14], [w * 0.03, yb - 14]], '#7fb2ff', width + 1, t, sp);
-      for (const f of [0.55, 0.8]) for (let q = -1; q <= 1; q++) { const [x, y] = along(f, 30); arrow(c, x + q * 9, y, x + q * 9, y - 24, 'rgba(255,255,255,0.7)', 1.3); }
+      // Long-wave cooling of the slope: heat leaves upwards.
+      for (const f of nb ? [0.55] : [0.55, 0.8]) for (let q = -1; q <= 1; q++) { const [x, y] = along(f, 30); arrow(c, x + q * 9, y, x + q * 9, y - 24, 'rgba(255,255,255,0.7)', 1.3); }
+      { const [x, y] = along(0.55, 30); txt(c, 'тепло уходит вверх', x - 16, y - 16, { size: 12, color: 'rgba(255,255,255,0.85)', align: 'right' }); }
       txt(c, nb ? 'ясная ночь: склон остывает, воздух тяжелеет' : 'ясная ночь: склон остывает излучением, воздух на нём тяжелеет', 12, 22, { size: 13.5, color: tc });
       txt(c, 'холодный воздух стекает по склону', nb ? 12 : 100, nb ? 48 : hh * 0.32, { size: nb ? 14 : 17, weight: 700, color: '#9cc4ff' });
       lines(c, ['в бухте ветер с берега 3–10 уз, максимум перед рассветом', `сейчас у устья Северной долины ${fmt(p.mouth)} уз`], 2, H0 - 26, 17, { size: 13, color: P.ink });
@@ -644,7 +664,7 @@
       txt(c, `${fmt(kk)} уз`, x + (nb ? 28 : 34), by + bh + 24, { size: 12.5, weight: 700, color: P.ink });
     }
     const msg = mode < 0 ? (nb ? 'в сужении вдвое быстрее' : 'ночью воздух стекает к бухте, в сужении вдвое быстрее') : (nb ? 'в сужении вдвое сильнее' : 'днём ветер дует вверх по долине, в сужении вдвое сильнее');
-    tag(c, msg, nb ? w - 8 : sx(0.5), by - 4, col, { align: nb ? 'right' : 'center' });
+    txt(c, msg, w - 8, by - 12, { size: 13, weight: 700, color: col, align: 'right' });
   }
   function drawKatabaticPlan(c, w, h, p, t) {
     const h1 = w < 620 ? 350 : 330;
@@ -681,7 +701,7 @@
     }
     c.save(); c.strokeStyle = P.ink; c.setLineDash([6, 5]); c.lineWidth = 1.6; c.beginPath(); model.forEach((z, i) => (i ? c.lineTo(X(i), Y(z)) : c.moveTo(X(i), Y(z)))); c.stroke(); c.restore();
     const mMax = Math.max(...model), iM = model.indexOf(mMax);
-    tag(c, 'модель 9 км: хребет около 1000 м', X(iM) + 30, Y(mMax) + 30, 'rgba(28,42,68,0.8)', { align: 'left' });
+    tag(c, 'модель 9 км: хребет около 900 м', X(iM) + 30, Y(mMax) + 30, 'rgba(28,42,68,0.8)', { align: 'left' });
     txt(c, '1500 м', X(I(16.5)) + 8, Y(1500) + 18, { size: 12, color: P.grey });
     if (p.high) { txt(c, 'H', w - 36, 36, { size: 28, weight: 800, color: '#2c5fb0', align: 'center' }); txt(c, nb ? 'антициклон' : 'антициклон за хребтом', w - 12, 54, { size: 12, color: P.grey, align: 'right' }); }
     if (p.low) { txt(c, 'L', 30, 36, { size: 28, weight: 800, color: P.red, align: 'center' }); txt(c, nb ? 'циклон' : 'циклон над морем', 12, 54, { size: 12, color: P.grey }); }
@@ -721,8 +741,10 @@
       const ink = '#1c2a44', sp = 40;
       if (Q.key === 'cape') {
         poly(c, [[0, ph * 0.48], [pw * 0.28, ph * 0.56], [pw * 0.52, ph * 0.74], [pw * 0.66, ph], [0, ph]], P.planLand);
-        [[0.12, 0.62, 1], [0.27, 0.62, 1], [0.42, 0.78, 1.25], [0.55, 0.92, 1.4]].forEach(([yy, len, k]) => flow(c, [[pw * 0.08, ph * yy * 0.8], [pw * (0.08 + len * 0.8), ph * yy * 0.8]], ink, 2.6, t, sp * k));
-        txt(c, '×1,3', x0 + pw * 0.72, ph * 0.82, { size: 26, weight: 800, color: P.orange });
+        // Streamlines bend round the cape: they crowd together and speed up at its tip, then spread out behind it.
+        [[0.12, 0.11, 0.16, 1], [0.24, 0.2, 0.32, 1.1], [0.34, 0.29, 0.5, 1.3], [0.42, 0.38, 0.68, 1.5]].forEach(([y0s, ym, y1s, k]) =>
+          flow(c, [[pw * 0.04, ph * y0s], [pw * 0.3, ph * (y0s + ym) / 2], [pw * 0.6, ph * ym], [pw * 0.8, ph * (ym + y1s) / 2], [pw * 0.95, ph * y1s]], ink, 2.6, t, sp * k));
+        txt(c, '×1,3', x0 + pw * 0.74, ph * 0.9, { size: 24, weight: 800, color: P.orange });
       } else if (Q.key === 'strait') {
         poly(c, [[0, 0], [pw, 0], [pw, ph * 0.23], [pw * 0.62, ph * 0.38], [pw * 0.38, ph * 0.38], [0, ph * 0.23]], P.planLand);
         poly(c, [[0, ph], [pw, ph], [pw, ph * 0.77], [pw * 0.62, ph * 0.62], [pw * 0.38, ph * 0.62], [0, ph * 0.77]], P.planLand);
@@ -745,7 +767,7 @@
   const CONV = [
     [10, 13, 'Облако подтягивает воздух', 'Тёплый влажный воздух у воды стекается к растущему облаку и поднимается в нём. Под облаком ветер дует к нему, слабый.'],
     [13, 15, 'Облако растёт', 'Башня поднимается выше 5–6 км, вершина становится волокнистой. До грозы 30–60 минут: следите за облаком и радаром.'],
-    [15, 17.5, 'Ливень и шквал', 'Из облака идут ливень и холодный нисходящий поток. Он растекается по воде, впереди идёт линия шквала: порыв 30–50 уз за минуту, поворот ветра до 180°, вал белой воды. Шквал длится 15–40 минут.'],
+    [15, 17.5, 'Ливень и шквал', 'Из облака идут ливень и холодный нисходящий поток. Он растекается по воде, впереди идёт фронт порывов.'],
     [17.5, 21.01, 'Распад', 'Нисходящий поток гасит восходящий. Остаётся наковальня и слабый дождь, ветер стихает.'],
   ];
   // A single thunderstorm over the sea, stage by stage: inflow and updraft, growth, downpour with the squall
@@ -798,7 +820,7 @@
       c.fillStyle = 'rgba(255,255,255,0.9)';
       for (let k = 0; k < 9; k++) { const x = xg - 4 + k * 6 + Math.sin(t * 6 + k) * 2; c.beginPath(); c.arc(x, yb - 2 - (k % 3) * 2, 3 + (k % 2), 0, Math.PI * 2); c.fill(); }
       c.save(); c.setLineDash([6, 5]); c.strokeStyle = P.red; c.lineWidth = 2.5; c.beginPath(); c.moveTo(xg - 4, cb + 30); c.lineTo(xg - 4, yb + 4); c.stroke(); c.restore();
-      tag(c, 'линия шквала', xg - 6, cb + 52, P.red, { align: xg < w * 0.3 ? 'left' : 'right' });
+      tag(c, 'фронт порывов', xg - 6, cb + 52, P.red, { align: xg < w * 0.3 ? 'left' : 'right' });
     }
     if (idx === 3) rain(c, cx - 20, cx + 24, cb + 10, yb, t, 0.6, 'rgba(70,110,170,0.4)');
     // The yacht and its wind: toward the cloud before the squall line, from the cloud after it.
@@ -808,7 +830,7 @@
     // Above the level of the shelf cloud, so the squall-line label never covers it.
     const yw = yb - sh * 0.5;
     barb(c, xy, yw, dir, kn, nb ? 24 : 30, P.ink);
-    txt(c, `у яхты ${fmt(kn)} уз, ${hit || idx === 3 ? 'от тучи' : 'к туче'}`, xy, yw + (nb ? 22 : 26), { size: 12.5, weight: 700, align: 'center', halo: 'rgba(255,255,255,0.8)' });
+    txt(c, `${hit ? 'за фронтом порывов ' : ''}ветер ${hit || idx === 3 ? 'от тучи' : 'к туче'}, ${fmt(kn)} уз`, xy, yw + (nb ? 22 : 26), { size: 12.5, weight: 700, align: 'center', halo: 'rgba(255,255,255,0.8)' });
     // Stage strip and description.
     const S0 = sh + 10, sw = (w - 16) / CONV.length;
     CONV.forEach((s, i) => {
@@ -873,8 +895,8 @@
       c.strokeStyle = P.ink; c.lineWidth = 1; c.beginPath(); c.moveTo(x, base + 18); c.lineTo(x, base + (row ? 36 : 22)); c.stroke();
       txt(c, `${lab}: ${ci.land ? 'в модели суша' : 'в модели вода'}`, x, base + (row ? 50 : 34), { size: 12, align: 'center', weight: 700, color: ci.land ? P.red : P.blue, halo: '#fff' });
     });
-    txt(c, nb(w) ? 'море — пролив — марина — хребет — плато' : 'разрез: открытое море — пролив — марина — хребет — плато', 8, 20, { size: 13, color: P.grey });
-    c.fillStyle = P.orange; c.fillRect(8, 32, 18, 3); txt(c, `пунктир — рельеф на сетке ${res} км`, 32, 38, { size: 12, color: P.grey });
+    txt(c, nb(w) ? 'море → пролив → марина → хребет → плато' : 'разрез: открытое море → пролив → марина → хребет → плато', 8, 20, { size: 13, color: P.grey });
+    c.fillStyle = P.orange; c.fillRect(8, 32, 7, 3); c.fillRect(19, 32, 7, 3); txt(c, `рельеф на сетке ${res} км`, 32, 38, { size: 12, color: P.grey });
   }
   const nb = (w) => w < 600;
 
@@ -920,19 +942,19 @@
     if (sail > 0) { c.fillStyle = '#fff'; c.beginPath(); c.moveTo(2, -72 + 70 * (1 - sail)); c.lineTo(2, -6); c.lineTo(2 + 34 * sail + 6, -6); c.closePath(); c.fill(); c.stroke(); }
     if (B <= 7) { c.fillStyle = '#f2f2f2'; c.beginPath(); c.moveTo(-2, -70); c.lineTo(-2 - 26 * Math.max(0.5, sail), -4); c.lineTo(-4, -4); c.closePath(); c.fill(); c.stroke(); }
     c.restore();
-    txt(c, B <= 4 ? 'полные паруса' : B === 5 ? 'первый риф' : B === 6 ? 'второй риф' : B <= 8 ? 'штормовые паруса' : 'без парусов, к укрытию заранее', bx, sceneH - 10, { size: 12.5, color: '#fff', align: 'center', weight: 600 });
-    // Card: number, name, units, waves, barb.
+    // Sail plan label next to the boat, above the mast.
+    txt(c, B <= 4 ? 'полные паруса' : B === 5 ? 'первый риф' : B === 6 ? 'второй риф' : B <= 8 ? 'штормовые паруса' : 'без парусов, к укрытию заранее', bx, Math.max(16, by - 86), { size: 12.5, color: B >= 8 ? '#fff' : P.ink, align: 'center', weight: 600 });
+    // Card: number, name, units, waves, gusts, barb. Its height follows the content.
     const cx = nb ? 0 : sw + 14, cy = nb ? sceneH + 12 : 8, cw = nb ? w : w - sw - 14;
-    card(c, cx, cy, cw, nb ? h - sceneH - 16 : h - 18);
+    const ms = kn * 0.514, kmh = kn * 1.852;
+    const info = [`${fmt(kn)} уз = ${fmt1(ms)} м/с = ${fmt(kmh)} км/ч`, `диапазон балла: ${row[3]}–${B === 12 ? '…' : row[4]} уз`, `порывы над морем: около ${fmt(kn * 1.3)} уз`, `волна в открытом море: ${row[5]} м`];
+    c.font = FONT(13); let ln = 'море:'; for (const wd of row[6].split(' ')) { if (c.measureText(`${ln} ${wd}`).width > cw - 34) { info.push(ln); ln = wd; } else ln = `${ln} ${wd}`; } info.push(ln);
+    card(c, cx, cy, cw, Math.min(nb ? h - sceneH - 16 : h - 18, 112 + info.length * 20 + 14));
     txt(c, String(B), cx + 16, cy + 56, { size: 52, weight: 800, color: P.ink });
     c.fillStyle = Draw.speedCSS(Math.max(5, kn)); c.fillRect(cx + 16, cy + 62, B >= 10 ? 60 : 30, 5);
     txt(c, B === 1 ? 'балл' : B >= 2 && B <= 4 ? 'балла' : 'баллов', cx + 16 + (B >= 10 ? 66 : 36), cy + 54, { size: 14, color: P.grey });
-    txt(c, row[1], cx + 16, cy + 82, { size: 18, weight: 700 });
-    txt(c, row[2], cx + 16, cy + 101, { size: 12.5, color: P.grey });
-    const ms = kn * 0.514, kmh = kn * 1.852;
-    const info = [`${fmt(kn)} уз = ${fmt1(ms)} м/с = ${fmt(kmh)} км/ч`, `диапазон балла: ${row[3]}–${B === 12 ? '…' : row[4]} уз`, `волна в открытом море: ${row[5]} м`];
-    c.font = FONT(13); let ln = 'море:'; for (const wd of row[6].split(' ')) { if (c.measureText(`${ln} ${wd}`).width > cw - 34) { info.push(ln); ln = wd; } else ln = `${ln} ${wd}`; } info.push(ln);
-    lines(c, info, cx + 16, cy + 128, 20, { size: 13, max: cw - 30 });
+    txt(c, row[1], cx + 16, cy + 84, { size: 18, weight: 700 });
+    lines(c, info, cx + 16, cy + 112, 20, { size: 13, max: cw - 30 });
     const bxx = cx + cw - (nb ? 70 : 60), byy = cy + 70;
     barb(c, bxx, byy, p.dir, kn, 46, P.ink);
     txt(c, `флажок: ${Wind.compass(p.dir)}`, bxx, cy + 120, { size: 12, color: P.grey, align: 'center' });
@@ -1017,8 +1039,8 @@
     c.strokeStyle = P.blue; c.setLineDash([6, 4]); c.lineWidth = 2; c.beginPath(); c.moveTo(XT(F.Td), YZ(0)); c.lineTo(XT(F.Td - 0.6), YZ(400)); c.stroke(); c.setLineDash([]);
     c.strokeStyle = P.red; c.lineWidth = 2.5; c.beginPath(); for (let z = 0; z <= 400; z += 10) { const x = XT(Tz(z)), y = YZ(z); z ? c.lineTo(x, y) : c.moveTo(x, y); } c.stroke();
     txt(c, `T ${fmt1(F.T)} °C`, XT(Tz(200)) + 8, YZ(200), { size: 12.5, weight: 700, color: P.red, halo: '#fff' });
-    txt(c, `Td ${fmt1(F.Td)} °C`, XT(F.Td) - 8, YZ(330), { size: 12.5, weight: 700, color: P.blue, align: 'right', halo: '#fff' });
-    txt(c, `T − Td = ${fmt1(F.spread)} °C${F.spread >= 2 ? ` · облака от ≈${fmt(125 * F.spread)} м` : ''}`, px + 12, py + PH - 10, { size: 12.5, weight: 700, max: PW - 20 });
+    txt(c, `Td ${fmt1(F.Td)} °C`, XT(F.Td - 0.6) - 10, YZ(330), { size: 12.5, weight: 700, color: P.blue, align: 'right', halo: '#fff' });
+    txt(c, `T − Td = ${fmt1(F.spread)} °C${F.spread >= 2 ? `, облака от ≈${fmt(125 * F.spread)} м` : ''}`, px + 12, py + PH - 10, { size: 12.5, weight: 700, max: PW - 20 });
     p._out = F;
   }
 
@@ -1128,7 +1150,7 @@
     const big = (s, x, col2) => { c.font = `700 ${nb ? 28 : 34}px "Source Serif 4", Georgia, serif`; c.textAlign = 'center'; c.lineWidth = 5; c.strokeStyle = 'rgba(255,255,255,0.85)'; c.strokeText(s, x, Y(2900)); c.fillStyle = col2; c.fillText(s, x, Y(2900)); c.textAlign = 'left'; };
     big('L', x0 + 40, '#c62f3a'); big('H', x1 - 40, '#2f62a8');
     txt(c, nb ? 'поднимается' : 'воздух поднимается', x0 + 54, Y(1100), { size: 12.5, color: '#b0482a', weight: 600, halo: 'rgba(255,255,255,0.8)' });
-    txt(c, 'опускается', x1 - 54, Y(1100), { size: 12.5, color: P.blue, weight: 600, align: 'right', halo: 'rgba(255,255,255,0.8)' });
+    txt(c, 'опускается', x1 - 54, Y(1100) - (nb ? 40 : 0), { size: 12.5, color: P.blue, weight: 600, align: 'right', halo: 'rgba(255,255,255,0.8)' });
     // Sea-level isobars: ticks where pressure crosses a multiple of 4 hPa.
     const ticks = [];
     for (let x = x0; x <= x1; x += 1) { const a = Ps(x), b = Ps(x + 1); const k = Math.ceil(a / 4) * 4; if (k <= b && k > a) ticks.push([x, k]); }
@@ -1162,7 +1184,7 @@
   function drawModels(c, w, h, p) {
     const nb = w < 620, lead = p.lead, use = modelsFor(lead);
     const cw = nb ? w : w * 0.58, x0 = nb ? 112 : 136, x1 = cw - 18, top = 34, rowH = nb ? 24 : 27;
-    const X = (d) => x0 + (x1 - x0) * Math.sqrt(d / 16); // square-root scale gives the first days more room
+    const X = (d) => x0 + (x1 - 46 - x0) * Math.sqrt(d / 16); // square-root scale gives the first days more room; room for labels on the right
     c.fillStyle = '#f7f9fb'; c.fillRect(0, 0, w, h);
     txt(c, 'Сетка и горизонт прогноза', 10, 20, { size: 14, weight: 700 });
     const yAxis = top + MODELS.length * rowH + 14;
@@ -1188,7 +1210,7 @@
     // Lead-time cursor.
     const xc = X(lead);
     c.strokeStyle = P.red; c.lineWidth = 2; c.beginPath(); c.moveTo(xc, top - 6); c.lineTo(xc, yAxis - 6); c.stroke();
-    tag(c, lead < 1 ? `через ${Math.round(lead * 24)} ч` : `через ${String(lead).replace('.', ',')} сут`, xc, top - 8, P.red, { align: xc > x1 - 60 ? 'right' : 'center' });
+    tag(c, lead < 1 ? `через ${Math.round(lead * 24)} ч` : lead === 1 ? 'через сутки' : `через ${String(lead).replace('.', ',')} суток`, xc, top - 8, P.red, { align: xc > x1 - 60 ? 'right' : 'center' });
     // The bay under the grid of the chosen model.
     const g = p.grid, bx0 = nb ? 10 : cw + 16, by0 = nb ? yAxis + 50 : 40;
     const bh = Math.min((nb ? w - 20 : w - cw - 26) * 0.75, h - by0 - 50), bw = bh / 0.75;

@@ -19,6 +19,9 @@
   const D2R = Math.PI / 180;
   const FOV = 36, T18 = Math.tan((FOV / 2) * D2R);
   const WW = COARSE ? 1200 : 1600, WH = WW * 0.75; // water texture, px
+  const RW = 200, RH = 150; // radar texture, px (0.2 km)
+  // Radar classes: dBZ threshold and colour, from light rain to a thunderstorm core.
+  const RADAR = globalThis.Draw.RADAR;
   const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
 
   // Render-only relief detail: ridged value noise on land, so the mountains get spurs and gullies.
@@ -304,10 +307,18 @@
       this.water = new THREE.Mesh(wg, new THREE.MeshBasicMaterial({ map: this.waterTex, transparent: true }));
       this.water.position.y = 0.002; this.water.renderOrder = -1;
       scene.add(this.water);
+      // Radar layer: a transparent texture draped over the water and the relief, hidden until setRadar(fn).
+      this.radarCanvas = document.createElement('canvas'); this.radarCanvas.width = RW; this.radarCanvas.height = RH;
+      this.radarTex = new THREE.CanvasTexture(this.radarCanvas);
+      const rm = new THREE.MeshBasicMaterial({ map: this.radarTex, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4 });
+      this.radarWater = new THREE.Mesh(wg, rm); this.radarWater.position.y = 0.03; this.radarWater.renderOrder = 2;
+      this.radarLand = new THREE.Mesh(this.S.terrain, rm); this.radarLand.renderOrder = 2;
+      this.radarWater.visible = this.radarLand.visible = false;
+      scene.add(this.radarWater, this.radarLand);
       this.fx = new THREE.Group(); scene.add(this.fx);
       this.anim = [];
 
-      const N = COARSE ? 900 : 2000, L = COARSE ? 7 : 10;
+      const N = COARSE ? 550 : 1100, L = COARSE ? 7 : 10;
       this.P = { N, L, x: new Float32Array(N), y: new Float32Array(N), age: new Float32Array(N), life: new Float32Array(N), land: new Uint8Array(N), hist: new Float32Array(N * L * 3) };
       const pg = new THREE.BufferGeometry();
       this.pPos = new Float32Array(N * (L - 1) * 2 * 3);
@@ -383,6 +394,9 @@
       mk('+', 'Приблизить', () => this._zoom(0.8));
       mk('−', 'Отдалить', () => this._zoom(1.25));
       this.wrap.appendChild(box);
+      this.radarLegend = document.createElement('div'); this.radarLegend.className = 'radar-legend'; this.radarLegend.hidden = true;
+      this.radarLegend.innerHTML = '<b>Радар</b><span class="rl-bar">' + RADAR.map(([, c]) => `<i style="background:rgb(${c[0]},${c[1]},${c[2]})"></i>`).join('') + '</span><span class="rl-lab"><span>слабый дождь</span><span>ливень</span><span>гроза</span></span>';
+      this.wrap.appendChild(this.radarLegend);
       this.compass = document.createElement('div'); this.compass.className = 'compass'; this.compass.setAttribute('aria-hidden', 'true');
       this.compass.innerHTML = '<svg viewBox="-19 -19 38 38"><polygon points="0,-14 5,2 0,-1 -5,2" fill="#c62f3a"/><polygon points="0,14 5,-2 0,1 -5,-2" fill="#12263a"/><text x="0" y="-5" font-size="0" /><text x="0" y="17.5" text-anchor="middle" font-size="7" font-weight="700" fill="#12263a"></text></svg><span style="position:absolute;top:-1px;left:50%;transform:translateX(-50%);font:700 9px/1 system-ui;color:#c62f3a">N</span>';
       this.wrap.appendChild(this.compass);
@@ -537,6 +551,43 @@
       this._sizes = null;
     }
 
+    // ---------------------------------------------------------------- radar
+    // fn(x, y) returns reflectivity in dBZ; null hides the layer.
+    setRadar(fn, title) {
+      if (this.radarLegend) this.radarLegend.querySelector('b').textContent = title || 'Радар';
+      this.radarFn = fn || null;
+      if (this.radarLegend) this.radarLegend.hidden = !fn;
+      if (!this.renderer) return;
+      if (this._radarCells) { this.scene.remove(this._radarCells); this._radarCells.traverse((m) => { if (m.geometry) m.geometry.dispose(); if (m.material) m.material.dispose(); }); this._radarCells = null; }
+      const blocksOn = !!(fn && this.cells && this.showCells);
+      this.radarWater.visible = this.radarLand.visible = !!fn && !blocksOn;
+      if (!fn) return;
+      if (blocksOn) { // coarse model: one precipitation value per cell, drawn on the top of its block
+        const g = new THREE.Group(), ec = this.S.elevCache;
+        for (const c of this.cells.list) {
+          const w = Math.min(c.size, W - c.x0), h = Math.min(c.size, H - c.y0);
+          if (w <= 0 || h <= 0) continue;
+          let z = 0; for (let a = 0.25; a < 1; a += 0.25) for (let b2 = 0.25; b2 < 1; b2 += 0.25) z += fn(c.x0 + a * w, c.y0 + b2 * h) / 9;
+          let col = null; for (const [z0, rgba] of RADAR) if (z >= z0) col = rgba;
+          if (!col) continue;
+          const e = ec.get(`${c.x0}|${c.y0}|${c.size}`) || 0, top = c.land ? Math.max(0.03, e * EX) : 0.02, gap = Math.min(0.06, c.size * 0.04);
+          const m = new THREE.Mesh(new THREE.PlaneGeometry(w - gap, h - gap), new THREE.MeshBasicMaterial({ color: new THREE.Color(`rgb(${col[0]},${col[1]},${col[2]})`), transparent: true, opacity: col[3] / 255, depthWrite: false }));
+          m.rotation.x = -Math.PI / 2; m.position.set(X(c.x0 + w / 2), top + 0.03, Z(c.y0 + h / 2)); m.renderOrder = 2; g.add(m);
+        }
+        this._radarCells = g; this.scene.add(g);
+        return;
+      }
+      const c = this.radarCanvas.getContext('2d'), img = c.createImageData(RW, RH), d = img.data;
+      for (let j = 0; j < RH; j++) for (let i = 0; i < RW; i++) {
+        const z = fn(((i + 0.5) / RW) * W, H - ((j + 0.5) / RH) * H);
+        let col = null;
+        for (const [z0, rgba] of RADAR) if (z >= z0) col = rgba;
+        if (col) { const k = (j * RW + i) * 4; d[k] = col[0]; d[k + 1] = col[1]; d[k + 2] = col[2]; d[k + 3] = col[3]; }
+      }
+      c.putImageData(img, 0, 0);
+      this.radarTex.needsUpdate = true;
+    }
+
     // ---------------------------------------------------------------- field
     setField(fn, cells) {
       this.fn = fn;
@@ -545,6 +596,8 @@
         const w = fn(i * GD, j * GD), k = j * GX + i;
         this.fieldU[k] = w.u; this.fieldV[k] = w.v; this.fieldS[k] = w.speed; this.fieldVar[k] = w.variable ? 1 : 0;
       }
+      const cf = this.overlays && this.overlays.colorFn; // e.g. wave height instead of wind speed
+      this.fieldC = cf ? Float32Array.from({ length: GX * GY }, (_, k) => cf((k % GX) * GD, Math.floor(k / GX) * GD)) : null;
       if (!this.renderer) return;
       this._paintWater();
       this.drawStatic();
@@ -580,7 +633,7 @@
       if (o.colors !== false) {
         const lc = this._lay.getContext('2d'), sc = this._small.getContext('2d'), img = sc.createImageData(GX, GY);
         for (let j = 0; j < GY; j++) for (let i = 0; i < GX; i++) {
-          const k = ((GY - 1 - j) * GX + i) * 4, col = Draw.speedRGB(this.fieldS[j * GX + i]);
+          const k = ((GY - 1 - j) * GX + i) * 4, col = this.fieldC ? Draw.waveRGB(this.fieldC[j * GX + i]) : Draw.speedRGB(this.fieldS[j * GX + i]);
           img.data[k] = col[0]; img.data[k + 1] = col[1]; img.data[k + 2] = col[2]; img.data[k + 3] = 255;
         }
         sc.putImageData(img, 0, 0);
@@ -593,7 +646,16 @@
       }
       c.drawImage(this.dark ? this.S.coastD : this.S.coastL, 0, 0);
       // Wind barbs on the water: the staff points to where the wind comes from.
-      if (o.colors !== false && o.barbs !== false) {
+      if (o.arrowFn) { // wave direction: arrows show where the waves run, longer for higher waves
+        const small = this.w && this.w < 560;
+        this.S.arrowPts.forEach(([x, y], idx) => {
+          if (small && idx % 2) return;
+          const a = o.arrowFn(x, y); if (!a || !a.h) return;
+          const px = (x / W) * WW, py = ((H - y) / H) * WH, L = ((0.9 + Math.min(3, a.h) * 0.45) / W) * WW * (small ? 1.5 : 1);
+          Draw.drawArrow(c, px, py, a.u, a.v, L, 'rgba(255,255,255,0.9)', L / 7);
+          Draw.drawArrow(c, px, py, a.u, a.v, L, '#10243a', L / 16);
+        });
+      } else if (o.colors !== false && o.barbs !== false) {
         const small = this.w && this.w < 560, len = ((small ? 2.6 : 1.5) / W) * WW, ink = this.dark || o.night ? '#ffffff' : '#10243a', halo = this.dark || o.night ? 'rgba(10,20,32,0.75)' : 'rgba(255,255,255,0.85)';
         this.S.arrowPts.forEach(([x, y], idx) => {
           if (small && idx % 2) return;
@@ -636,8 +698,14 @@
       if (o.pool > 0) this._pool(o.pool);
       if (o.pressure) for (const p of o.pressure) this._label(p.t, p.x, p.y, surf(p.x, p.y) + (p.z ?? 3.2), `lbl-press lbl-${p.t === 'H' ? 'high' : 'low'}`, p.sub, 2);
       if (o.front) this._front(o.front);
+      if (o.tower && o.tower.g > 0.05) this._tower(o.tower);
       if (o.storm && o.storm.I > 0.02) this._storm(o.storm);
       if (o.route && o.route.length > 1) this._route(o.route);
+      if (o.marks) for (const m of o.marks) { // risks marked by the skipper
+        const pin = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.6, 6), new THREE.MeshBasicMaterial({ color: 0xa3246f }));
+        const h = Math.max(0, surf(m.x, m.y)); pin.position.set(X(m.x), h + 0.8, Z(m.y)); this.fx.add(pin);
+        this._label(m.text, m.x, m.y, h + 1.7, `lbl-risk${m.on ? ' lbl-risk-on' : ''}`, null, 1);
+      }
       if (o.probe) this._probe(o.probe);
       if (o.fog && o.fog.density > 0.02) this._fog(o.fog);
       this.particles.visible = o.particles !== false && !REDUCED;
@@ -721,6 +789,16 @@
       }
       const lt = t0 + len * 0.5;
       this._label('холодный фронт', F.x + F.tx * lt, F.y + F.ty * lt, 5.6, 'lbl-front', null, 2);
+    }
+
+    // Cumulus tower: a column that grows with g and spreads into an anvil at the top.
+    _tower(T) {
+      const g = T.g, r = Ens.rng(57), base = Math.max(3.0, surf(T.x, T.y) + 2.0), n = 2 + Math.round(7 * g), top = base + 1.0 * n;
+      for (let i = 0; i < n; i++) {
+        const z = base + i * 1.0, k = i / Math.max(1, n - 1);
+        for (let m = 0; m < 3; m++) this._sprite(T.x + (r() - 0.5) * 1.8, T.y + (r() - 0.5) * 1.8, z + r() * 0.4, 3.4 + 0.8 * r() - 0.6 * k, k < 0.25 ? 0x9aa3b0 : 0xffffff, 0.95);
+      }
+      if (g > 0.6) { const a = this._sprite(T.x - 1.5, T.y - 1, top + 0.6, 10, 0xf2f4f7, 0.9 * Math.min(1, (g - 0.6) / 0.3)); a.scale.set(14 * g, 2.6, 1); }
     }
 
     _storm(S) {
@@ -892,7 +970,7 @@
     _spawn(i, randomAge) {
       const P = this.P;
       let x = 0, y = 0;
-      for (let k = 0; k < 6; k++) { x = Math.random() * W; y = Math.random() * H; if (!Bay.isLand(x, y) || Math.random() < 0.3) break; } // about 70 % over water
+      for (let k = 0; k < 12; k++) { x = Math.random() * W; y = Math.random() * H; if (!Bay.isLand(x, y) || Math.random() < 0.1) break; } // mostly over water
       P.x[i] = x; P.y[i] = y; P.age[i] = randomAge ? Math.random() * 40 : 0; P.life[i] = 35 + Math.random() * 30;
       P.land[i] = Bay.isLand(x, y);
       const h = surf(x, y) + 0.1, base = i * P.L * 3;
@@ -909,10 +987,10 @@
         let u = s[0], v = s[1];
         if (push) {
           if (s[3]) { const a = (Math.random() - 0.5) * 2.4, cu = Math.cos(a), su = Math.sin(a); const uu = u * cu - v * su; v = u * su + v * cu; u = uu; }
-          const sp = s[2], boost = sp > 0.1 && sp < 8 ? Math.sqrt(8 / sp) : 1, k = 0.011 * boost;
+          const sp = s[2], boost = sp > 0.1 && sp < 4 ? Math.sqrt(4 / sp) : 1, k = 0.011 * boost;
           const x1 = P.x[i] + u * k, y1 = P.y[i] + v * k;
           P.age[i] += 1;
-          if (P.age[i] > P.life[i] || x1 < 0 || y1 < 0 || x1 > W || y1 > H || sp < 0.4) this._spawn(i, false);
+          if (P.age[i] > P.life[i] || x1 < 0 || y1 < 0 || x1 > W || y1 > H || sp < 1 || (Bay.isLand(x1, y1) && sp < 12)) this._spawn(i, false);
           else {
             P.x[i] = x1; P.y[i] = y1;
             const base = i * L * 3;
@@ -928,7 +1006,9 @@
           const rgb = P.land[i] ? [190, 185, 170] : Draw.speedRGB(s[2]), lum = (0.3 * rgb[0] + 0.59 * rgb[1] + 0.11 * rgb[2]) / 255;
           if (lum > 0.45) { cr = 0.06; cg = 0.13; cb = 0.24; }
         }
-        const fade = Math.min(1, P.age[i] / 4) * Math.min(1, (P.life[i] - P.age[i]) / 6) * (P.land[i] ? 0.7 : 1);
+        // Streaks fade out in light wind, so calm water reads as calm; they stay thin over land.
+        const strength = Math.min(1, Math.max(0, (s[2] - 1) / 9));
+        const fade = Math.min(1, P.age[i] / 4) * Math.min(1, (P.life[i] - P.age[i]) / 6) * (P.land[i] ? 0.35 : 1) * (night ? 0.35 : 0.65) * strength;
         for (let s2 = 0; s2 < L - 1; s2++) {
           const o = (i * (L - 1) + s2) * 6, hb = (i * L + s2) * 3;
           pos[o] = hist[hb]; pos[o + 1] = hist[hb + 1]; pos[o + 2] = hist[hb + 2];
@@ -952,7 +1032,10 @@
       if (this._wPainted !== (this.w < 560)) { this._wPainted = this.w < 560; if (this.fn) this._paintWater(); }
       if (this._tween) this._tween(now);
       if (this.follow && this._yacht && !REDUCED) {
-        const tx = Math.max(-W / 2 + 9, Math.min(W / 2 - 9, X(this._yacht.x))), tz = Math.max(-H / 2 + 6, Math.min(H / 2 - 6, Z(this._yacht.y)));
+        // Follow the yacht, but never pan so far that the view shows empty space beyond the map edge.
+        const dist = this.camera.position.distanceTo(this.controls.target), hh = dist * Math.tan((this.camera.fov * Math.PI) / 360), hw = hh * this.camera.aspect;
+        const mx = Math.max(0, W / 2 - hw), mz = Math.max(0, H / 2 - hh);
+        const tx = Math.max(-mx, Math.min(mx, X(this._yacht.x))), tz = Math.max(-mz, Math.min(mz, Z(this._yacht.y)));
         const d = new THREE.Vector3(tx, this.controls.target.y, tz).sub(this.controls.target).multiplyScalar(0.04);
         this.controls.target.add(d); this.camera.position.add(d);
       }

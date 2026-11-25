@@ -8,7 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).parent
 SRC = ROOT / "src"
 DIST = ROOT / "dist"
-SCRIPTS = ["bay.js", "wind.js", "ensemble.js", "draw.js", "ui.js", "scene3d.js", "section.js", "chapters.js", "topics.js", "final.js", "app.js"]
+SCRIPTS = ["bay.js", "wind.js", "wave.js", "ensemble.js", "draw.js", "ui.js", "scene3d.js", "map2d.js", "section.js", "chapters.js", "topics.js", "final.js", "app.js"]
 
 
 def main() -> None:
@@ -17,7 +17,8 @@ def main() -> None:
     js = "\n".join((SRC / name).read_text(encoding="utf-8") for name in SCRIPTS if (SRC / name).exists())
     if "</script" in js:
         raise SystemExit("script source contains </script")
-    body = page.replace("/*STYLE*/", css).replace("/*SCRIPT*/", js)
+    qr = (SRC / "qr.svg").read_text(encoding="utf-8").strip()
+    body = page.replace("/*STYLE*/", css).replace("/*QR*/", qr).replace("/*SCRIPT*/", js)
     DIST.mkdir(exist_ok=True)
     (DIST / "trainer.html").write_text(body, encoding="utf-8")
     full = (

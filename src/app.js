@@ -11,8 +11,10 @@
   const ITEMS = [
     ...TOPICS.map((t) => ({ id: t.id, label: (CH[t.id] || t).title })),
     { id: 'final', label: (CH.final || {}).title || 'Итоговый переход' },
+    { id: 'summary', label: 'Что запомнить' },
   ].map((it, i) => ({ ...it, n: i + 1 }));
   const REF = { id: 'ref', label: 'Справка' };
+  const SITE = 'https://idrigo.github.io/wind-coast-trainer/';
   const toc = el('details', { class: 'toc' });
   const tocLabel = el('span', { class: 'toc-label' });
   const tocList = el('ol', { class: 'toc-list' }, ...ITEMS.map((it) => el('li', {}, el('a', { href: `#${it.id}`, 'data-id': it.id }, it.label))));
@@ -24,33 +26,62 @@
     const prev = ITEMS[k - 1], next = ITEMS[k + 1];
     return el('nav', { class: 'pager', 'aria-label': 'Соседние главы' },
       prev ? el('a', { href: `#${prev.id}`, class: 'pg-prev' }, el('span', {}, 'Назад'), el('b', {}, prev.label)) : el('span'),
-      next ? el('a', { href: `#${next.id}`, class: 'pg-next' }, el('span', {}, `Глава ${next.n}`), el('b', {}, next.label)) : el('span'));
+      next ? el('a', { href: `#${next.id}`, class: 'pg-next' }, el('span', {}, next.id === 'summary' ? 'Итог' : `Глава ${next.n}`), el('b', {}, next.label)) : el('span'));
   }
 
   function ensure(id) {
     if (views[id]) return views[id];
     const k = ITEMS.findIndex((it) => it.id === id);
-    if (id === 'final') views[id] = new globalThis.Final.FinalView(main);
+    if (id === 'cover') views[id] = { root: cover(main) };
+    else if (id === 'summary') views[id] = { root: summary(main) };
+    else if (id === 'final') views[id] = new globalThis.Final.FinalView(main);
     else if (id === 'ref') views[id] = { root: reference(main) };
     else views[id] = new TopicView(main, TOPICS.find((t) => t.id === id), CH[id]);
     if (k >= 0) {
       const v = views[id];
-      v.root.querySelector('.ch-head').prepend(el('p', { class: 'ch-num' }, `Глава ${ITEMS[k].n}`));
+      if (id !== 'summary') v.root.querySelector('.ch-head').prepend(el('p', { class: 'ch-num' }, `Глава ${ITEMS[k].n}`));
       v.root.append(pager(k));
     }
     return views[id];
   }
 
   function show(id) {
-    if (id !== 'ref' && !ITEMS.some((i) => i.id === id)) id = ITEMS[0].id;
+    if (id !== 'ref' && !ITEMS.some((i) => i.id === id)) id = 'cover';
     const view = ensure(id);
     for (const [k, v] of Object.entries(views)) v.root.hidden = k !== id;
     if (view.map) view.map.activate();
-    const cur = ITEMS.find((i) => i.id === id) || REF;
-    tocLabel.textContent = cur.n ? `${cur.n}. ${cur.label}` : cur.label;
+    const cur = ITEMS.find((i) => i.id === id);
+    tocLabel.textContent = cur ? `${cur.n}. ${cur.label}` : '';
     for (const a of nav.querySelectorAll('[data-id]')) a.setAttribute('aria-current', a.dataset.id === id ? 'page' : 'false');
     toc.open = false;
     window.scrollTo(0, 0);
+  }
+
+  // Title page: course name, start link and a QR code to the hosted copy.
+  function cover(root) {
+    const qr = el('a', { class: 'cover-qr', href: SITE, 'aria-label': `QR-код: ${SITE}` });
+    qr.append(document.getElementById('qr-svg').content.cloneNode(true));
+    const sec = el('section', { class: 'cover', id: 'view-cover' },
+      el('div', { class: 'cover-text' },
+        el('h1', { class: 'cover-title' }, 'Метеорология для\u00a0яхтсменов'),
+        el('p', { class: 'cover-lead' }, UI.typo('Местные ветры, фронты и чтение прогноза. Тренажёр к\u00a0лекции «Прогноз погоды».')),
+        el('a', { class: 'btn primary cover-start', href: `#${ITEMS[0].id}` }, `Глава 1. ${ITEMS[0].label}`)),
+      el('figure', { class: 'cover-code' }, qr,
+        el('figcaption', {}, el('span', {}, 'Открыть на телефоне'), el('a', { href: SITE }, SITE.replace('https://', '').replace(/\/$/, '')))));
+    root.append(sec);
+    return sec;
+  }
+
+  // Key points of every chapter on one page, for the end of the lecture.
+  function summary(root) {
+    const cards = ITEMS.filter((it) => CH[it.id] && CH[it.id].key && it.id !== 'final').map((it) => el('article', { class: 'sum-card' },
+      el('h3', {}, el('span', { class: 'sum-n' }, String(it.n)), el('a', { href: `#${it.id}` }, it.label)),
+      el('ul', {}, ...CH[it.id].key.map((t) => el('li', {}, UI.typo(t))))));
+    const sec = el('section', { class: 'summary', id: 'view-summary' },
+      el('header', { class: 'ch-head' }, el('h1', { class: 'ch-title' }, 'Что запомнить')),
+      el('div', { class: 'sum-grid' }, ...cards));
+    root.append(sec);
+    return sec;
   }
 
   function reference(root) {
@@ -80,31 +111,32 @@
       ['Облачная шапка на гребне', 'бора'],
     ];
     const table = (head, rows, cls) => el('div', { class: 'tbl-wrap' }, el('table', { class: `tbl ${cls || ''}` },
-      el('tr', {}, ...head.map((h) => el('th', {}, h))), ...rows.map((r) => el('tr', {}, ...r.map((c) => el('td', {}, c))))));
+      el('tr', {}, ...head.map((h) => el('th', {}, h))), ...rows.map((r) => el('tr', {}, ...r.map((c) => el('td', {}, UI.typo(c)))))));
+    const barbs = el('canvas', { class: 'barb-key', width: 760, height: 150, role: 'img', 'aria-label': 'Флажки ветра: 5, 10, 15, 25 и 50 узлов' });
     const sec = el('section', { class: 'ref', id: 'view-ref' },
       el('header', { class: 'ch-head' }, el('h1', { class: 'ch-title' }, 'Справка'), el('p', { class: 'ch-lead' }, 'Шкала Бофорта, поправки к прогнозу, признаки изменения погоды и слова из глав.')),
       el('div', { class: 'ref-grid' },
         el('div', {}, el('h3', {}, 'Шкала Бофорта'), table(['Балл', 'Название', 'Узлы', 'Волна, м', 'Состояние моря'], bf, 'bf'),
-          el('p', { class: 'note' }, 'Средний ветер за 10 минут на высоте 10 м. 1 узел = 1,852 км/ч = 0,514 м/с; 10 м/с ≈ 20 уз. Порывы на 20–40 % сильнее среднего, в боре и при шквалах вдвое.')),
+          el('p', { class: 'note' }, 'Средний ветер за 10 минут на высоте 10 м. 1 узел = 1,852 км/ч = 0,514 м/с; 10 м/с ≈ 20 уз. Порывы на 20–40 % сильнее среднего, в боре и при шквалах вдвое.'),
+          el('h3', {}, 'Как читать флажок ветра'), barbs, el('p', { class: 'note' }, 'Слева направо: 5, 10, 15, 25 и 50 узлов. Ветер на всех флажках северо-восточный: древко смотрит туда, откуда он дует.')),
         el('div', {}, el('h3', {}, 'Поправки к прогнозу модели'), table(['Ситуация', 'Поправка'], fixes),
           el('h3', {}, 'Признаки изменения погоды'), table(['Наблюдение', 'Ожидание'], signs))));
     // How to read the symbols, and the words used in the trainer.
-    const barbs = el('canvas', { class: 'barb-key', width: 760, height: 150, role: 'img', 'aria-label': 'Флажки ветра: 5, 10, 15, 25 и 50 узлов' });
     const gl = [
       ['Флажок ветра', 'Древко указывает, откуда дует ветер. Короткое перо 5 уз, длинное 10 уз, треугольник 50 уз.'],
-      ['Стрелки на карте', 'Показывают, куда дует ветер, как в большинстве приложений. Цвет воды — средний ветер.'],
+      ['Цвет воды и штрихи на карте', 'Цвет показывает средний ветер, бегущие штрихи показывают поток. Стрелки в таблице прогноза, как в большинстве приложений, показывают, куда дует ветер.'],
       ['Геострофический ветер', 'Ветер на высоте, где нет трения: дует вдоль изобар. У поверхности он слабее и повёрнут к низкому давлению.'],
-      ['Изобары, H и L', 'Линии одинакового давления. H — антициклон (высокое давление), L — циклон (низкое). Чем гуще изобары, тем сильнее ветер.'],
-      ['Ротор', 'Вихрь с горизонтальной осью под высоким берегом: штиль и порывы с разных направлений.'],
+      ['Изобары, H и L', 'Линии одинакового давления. H означает антициклон (высокое давление), L циклон (низкое). Чем гуще изобары, тем сильнее ветер.'],
+      ['Ветровая волна и зыбь', 'Ветровую волну поднимает местный ветер, она короткая и крутая. Зыбь приходит издалека, она пологая.'],
+      ['Ротор', 'Вихрь с горизонтальной осью под высоким берегом, с которого дует ветер: штиль и порывы с разных направлений.'],
       ['Ячейка модели', 'Квадрат сетки модели. Модель даёт среднее по ячейке, а не значение в точке.'],
-      ['CAPE', 'Энергия неустойчивости атмосферы. Высокий CAPE — условия для гроз.'],
-      ['Ансамбль, P10, P50, P90', 'Модель считают 30–50 раз с разными начальными условиями. P50 — медиана: половина сценариев выше, половина ниже. P90 — выше только 10 % сценариев; по нему планируют.'],
-      ['Контрольный прогноз', 'Расчёт ансамбля без возмущений, обычный прогноз модели.'],
-      ['Время «+1»', 'На графиках «6:00+1» — 06:00 следующего дня.'],
+      ['CAPE', 'Энергия неустойчивости атмосферы. При высоком CAPE возможны грозы.'],
+      ['Ансамбль, P10, P50, P90', 'Модель считают 30–50 раз с разными начальными условиями. P50, медиана: половина прогонов выше, половина ниже. P90 превышают только 10 % прогонов, по нему планируют.'],
+      ['Контрольный прогноз', 'Прогон ансамбля без изменений начальных условий, обычный прогноз модели.'],
+      ['Время «+1»', 'На графиках «6:00+1» означает 06:00 следующего дня.'],
     ];
-    sec.append(el('div', { class: 'ref-grid' },
-      el('div', {}, el('h3', {}, 'Как читать флажок ветра'), barbs, el('p', { class: 'note' }, 'Слева направо: 5, 10, 15, 25 и 50 узлов. Ветер на всех флажках северо-восточный: древко смотрит туда, откуда он дует.')),
-      el('div', {}, el('h3', {}, 'Слова, которые встречаются в тренажёре'), el('dl', { class: 'glossary' }, ...gl.flatMap(([t, d]) => [el('dt', {}, t), el('dd', {}, d)])))));
+    sec.append(el('div', { class: 'ref-gloss' }, el('h3', {}, 'Слова, которые встречаются в тренажёре'),
+      el('dl', { class: 'glossary' }, ...gl.flatMap(([t, d]) => [el('dt', {}, t), el('dd', {}, UI.typo(d))]))));
     root.append(sec);
     requestAnimationFrame(() => {
       const c = barbs.getContext('2d'); c.setTransform(2, 0, 0, 2, 0, 0); c.clearRect(0, 0, 380, 75);
@@ -115,7 +147,7 @@
 
   globalThis.Trainer = { views }; // for automated checks
   window.addEventListener('hashchange', () => show(location.hash.slice(1)));
-  show(location.hash.slice(1) || ITEMS[0].id);
+  show(location.hash.slice(1) || 'cover');
   // Redraw maps when fonts arrive or the theme changes.
   const redraw = () => { for (const v of document.querySelectorAll('.map-wrap')) v.dispatchEvent(new Event('themechange')); };
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(redraw);

@@ -27,18 +27,18 @@
   const cellWind = (c) => ({ u: c.u, v: c.v, speed: c.speed, gust: c.gust, dir: c.dir, variable: false });
 
   const SERVICES = [
-    ['Windy', 'https://www.windy.com', 'карты моделей ECMWF, GFS, ICON; Compare в точке; слои Gusts, Waves, CAPE, Radar'],
-    ['Meteologix', 'https://meteologix.com', 'региональная модель Swiss HD 1–4 км, сравнение моделей, карта порывов'],
-    ['ECMWF Open Charts', 'https://charts.ecmwf.int', 'ENS-метеограммы: медиана, 25–75 %, 10–90 % из 51 прогона'],
-    ['Meteoblue', 'https://www.meteoblue.com', 'MultiModel Ensemble для точки и проверка моделей по наблюдениям'],
-    ['Meteoalarm', 'https://www.meteoalarm.org', 'официальные предупреждения по регионам Европы'],
-    ['Метеослужба Черногории', 'https://www.meteo.co.me', 'официальный прогноз и предупреждения'],
-    ['DHMZ, Хорватия', 'https://meteo.hr', 'морской прогноз Адриатики, тексты NAVTEX'],
+    ['Windy', 'https://www.windy.com', 'Карты моделей ECMWF, GFS и ICON, сравнение моделей в точке, карта порывов.'],
+    ['Meteologix', 'https://meteologix.com', 'Региональная модель Swiss HD с сеткой 1–4 км, сравнение моделей, карта порывов.'],
+    ['ECMWF Open Charts', 'https://charts.ecmwf.int', 'Метеограммы ансамбля ECMWF: медиана и разброс 51 прогона.'],
+    ['Meteoblue', 'https://www.meteoblue.com', 'Ансамбль из нескольких моделей для выбранной точки.'],
+    ['Meteoalarm', 'https://www.meteoalarm.org', 'Официальные предупреждения по регионам Европы.'],
+    ['Метеослужба Черногории', 'https://www.meteo.co.me', 'Официальный прогноз и предупреждения.'],
+    ['DHMZ, Хорватия', 'https://meteo.hr', 'Морской прогноз для Адриатики.'],
   ];
   function servicesBox() {
     return el('div', { class: 'services' }, el('h3', {}, 'Посмотреть на реальных данных'),
-      el('ul', {}, ...SERVICES.map(([n, u, d]) => el('li', {}, el('a', { href: u, target: '_blank', rel: 'noopener' }, n), ` — ${d}`))),
-      el('p', { class: 'note' }, 'Сервисы показывают те же модели, что и тренажёр: проверяйте время прогона и сравнивайте 2–3 модели.'));
+      el('dl', { class: 'svc-list' }, ...SERVICES.flatMap(([n, u, d]) => [el('dt', {}, el('a', { href: u, target: '_blank', rel: 'noopener' }, n)), el('dd', {}, UI.typo(d))])),
+      el('p', { class: 'note' }, 'Проверяйте время прогона и сравнивайте 2–3 модели.'));
   }
 
   // A video next to the chapter. The artifact viewer blocks YouTube frames, so only the standalone page
@@ -66,7 +66,7 @@
         const o = p._out || Schemes.heatOut(p);
         const cloud = p.night ? 'Ночью воздух не поднимается, облаков нет'
           : o.cloud ? `Облако там, где воздух остыл до точки росы ${v.td} °C: ≈ ${fmtNum(Math.round(o.base / 10) * 10)} м = 125 м × (${o.T.land} − ${v.td})` : `Облаков нет: воздух остыл бы до ${v.td} °C только выше 2,8 км`;
-        return { w: { speed: o.wind, gust: o.wind * 1.3, dir: o.dir }, extra: [cloud], title: 'Ветер у берега' };
+        return { w: { speed: o.wind, gust: o.wind * 1.3, dir: o.dir }, extra: [cloud], title: 'Ветер у поверхности' };
       },
     },
     // ------------------------------------------------------------------ 2. pressure, cyclones
@@ -98,7 +98,7 @@
       section: (v) => ({ type: 'beaufort', p: { kn: v.kn, dir: v.dir } }),
       readout: (v) => {
         const B = Wind.beaufort(v.kn), row = Schemes.BF[B];
-        return { w: { speed: v.kn, gust: v.kn * 1.3, dir: v.kn < 1 ? null : v.dir }, extra: [`${row[1]} (${row[2]}), ${row[3]}–${B === 12 ? '…' : row[4]} уз`, `Волна в открытом море ${row[5]} м: ${row[6]}`, 'Порывы: средний ×1,3 над морем'], title: 'Ветер' };
+        return { w: { speed: v.kn, gust: v.kn * 1.3, dir: v.kn < 1 ? null : v.dir }, extra: ['Порывы над морем: средний ветер × 1,3'], title: 'Ветер' };
       },
     },
     // ------------------------------------------------------------------ 3. fronts
@@ -132,7 +132,7 @@
     },
     // ------------------------------------------------------------------ 2
     {
-      id: 't4', num: 4, short: 'Бриз', title: 'Бриз и синоптический ветер',
+      id: 't4', num: 4, short: 'Бриз', title: 'Бриз',
       controls: [
         { id: 'preset', type: 'seg', label: 'Показать', options: [['day', 'Дневной бриз'], ['night', 'Ночной бриз']] },
         { id: 'hour', type: 'range', label: 'Время', min: 0, max: 23.5, step: 0.5, fmt: 'time' },
@@ -157,7 +157,7 @@
             return [
               `Бриз в точке ${fmtNum(br)} уз${w.parts.br[0] * Bay.gradL(p.x, p.y)[0] + w.parts.br[1] * Bay.gradL(p.x, p.y)[1] < 0 ? ' (с берега)' : ''}`,
               w.land ? 'Яхта на суше.' : `До берега ${nm(d)} мили (${fmtNum(d, 1)} км)`,
-              Wind.breezeDay(v.hour) > 0.3 && v.clear ? 'Над берегом линия кучевых: фронт бриза.' : null,
+              Wind.breezeDay(v.hour) > 0.3 && v.clear ? 'Над прогретым берегом встают кучевые облака.' : null,
             ];
           },
         };
@@ -165,7 +165,7 @@
     },
     // ------------------------------------------------------------------ 3
     {
-      id: 't5', num: 5, short: 'Катабатика', title: 'Катабатический и горно-долинный ветер',
+      id: 't5', num: 5, short: 'Стоковый', title: 'Стоковый и долинный ветер',
       controls: [
         { id: 'hour', type: 'range', label: 'Время', min: 0, max: 23.5, step: 0.5, fmt: 'time' },
         { id: 'G', type: 'range', label: 'Синоптический ветер', min: 0, max: 20, step: 1, unit: 'уз' },
@@ -221,7 +221,7 @@
           S: base,
           overlays: {
             cap: Bo >= 0.45, pool: v.cold ? (v.high ? 1 : 0.55) : 0,
-            pressure: [v.high && { t: 'H', sub: 'центр за картой, 1030 гПа', x: 34, y: 27, z: 3.4 }, v.low && { t: 'L', sub: 'центр за картой (юго-запад), 1004 гПа', x: 3, y: 1.2, z: 2.6 }].filter(Boolean),
+            pressure: [v.high && { t: 'H', sub: 'центр за картой, 1030 гПа', x: 34, y: 27, z: 3.4 }, v.low && { t: 'L', sub: 'центр за картой (юго-запад), 1004 гПа', x: 5, y: 6, z: 2.6 }].filter(Boolean),
           },
           extra: (w, p) => {
             const m = cellAt(C9, p.x, p.y) || { speed: 0, gust: 0 };
@@ -265,6 +265,29 @@
         };
       },
     },
+    // ------------------------------------------------------------------ waves
+    {
+      id: 'waves', short: 'Волна', title: 'Волна', legend: 'wave',
+      controls: [
+        { id: 'Gdir', type: 'dir', label: 'Ветер, откуда' },
+        { id: 'G', type: 'range', label: 'Ветер на высоте', min: 5, max: 35, step: 1, unit: 'уз' },
+        { id: 'swell', type: 'toggle', label: 'Зыбь с юга 1,5 м' },
+      ],
+      defaults: { Gdir: 210, G: 22, swell: true },
+      yacht: { x: 9.6, y: 3.4 },
+      compute(v) {
+        const S = { G: v.G, Gdir: v.Gdir, hour: 12, effects: fx({ terrain: true, lee: true }) };
+        const sw = v.swell ? { h: 1.5, dir: 185 } : null, fn = (x, y) => Wind.at(x, y, S);
+        return {
+          S, fn, title: 'Ветер у яхты',
+          overlays: { colorFn: (x, y) => globalThis.Wave.at(x, y, fn(x, y), sw).hs, arrowFn: (x, y) => { const q = globalThis.Wave.at(x, y, fn(x, y), sw); return { u: q.u, v: q.v, h: q.hs }; } },
+          extra: (w, p) => {
+            const q = globalThis.Wave.at(p.x, p.y, w, sw);
+            return [`Волна ${fmtNum(q.hs, 1)} м${q.dir != null ? `, идёт с ${Wind.compass(q.dir)}` : ''}`, `Ветровая ${fmtNum(q.sea, 1)} м, разгон ${q.fetch >= 150 ? 'с открытого моря' : `${fmtNum(q.fetch)} км`}`, ...(sw ? [`Зыбь ${fmtNum(q.sw, 1)} м${q.shade > 0.5 ? ', тень берега' : ''}`] : [])];
+          },
+        };
+      },
+    },
     // ------------------------------------------------------------------ 8. convection and thunderstorms
     {
       id: 't8', num: 8, short: 'Грозы', title: 'Конвекция и грозы',
@@ -281,7 +304,7 @@
           overlays: { storm: c, cumulus: v.hour >= 11 && v.hour < 15 ? 0.4 + 0.6 * Wind.sstep(11, 15, v.hour) : 0 },
           extra: (w, p) => {
             const d = Math.hypot(p.x - c.x, p.y - c.y);
-            return [c.I < 0.05 ? 'Гроза ещё не развилась или уже распалась.' : d < 2.4 ? 'Яхта под ячейкой: ливень, шквал, видимость 100–300 м.' : d < 6 ? `Фронт порывов рядом: ${UI.fmtNum(d / 1.852, 1)} мили до ячейки.` : `До ячейки ${UI.fmtNum(d / 1.852, 0)} миль.`];
+            return [c.I < 0.05 ? 'Гроза ещё не развилась или уже распалась.' : d < 2.4 ? 'Яхта под ячейкой: ливень, шквал, видимость 100–300 м.' : d < 6 ? `Фронт порывов рядом, до ячейки ${UI.fmtNum(d / 1.852, 1)} мили.` : `До ячейки ${UI.fmtNum(d / 1.852, 0)} ${UI.plural(d / 1.852, 'миля', 'мили', 'миль')}.`];
           },
         };
       },
@@ -305,7 +328,7 @@
         ]),
       ],
       defaults: { type: 'rad', hour: 5, T: 16, Td: 12, G: 2, clear: true, Ta: 20, Tda: 16, sst: 14 },
-      yacht: { x: 24.5, y: 17.2 },
+      yacht: { x: 22.8, y: 19.2 },
       fog(v) { return v.type === 'adv' ? Schemes.fogState({ type: 'adv', T: v.Ta, Td: v.Tda, sst: v.sst, G: v.G }) : Schemes.fogState({ type: 'rad', hour: v.hour, T: v.T, Td: v.Td, G: v.G, clear: v.clear }); },
       section: (v) => ({ type: 'fog', p: v.type === 'adv' ? { type: 'adv', T: v.Ta, Td: v.Tda, sst: v.sst, G: v.G, hour: 13 } : { type: 'rad', hour: v.hour, T: v.T, Td: v.Td, G: v.G, clear: v.clear } }),
       compute(v) {
@@ -329,7 +352,6 @@
       defaults: { scn: 'bora', res: 9, truth: false },
       yacht: { x: 21.1, y: 13.1 },
       section: (v) => ({ type: 'resolution', p: { res: v.res } }),
-      services: true,
       compute(v, view) {
         const base = {
           bora: { G: 6, Gdir: 40, hour: 10, sun: 0, bora: 1 },
@@ -351,8 +373,8 @@
             const c = cellAt(C, p.x, p.y), t = Wind.at(p.x, p.y, T);
             return [
               v.truth ? `Модель ${v.res} км в этой ячейке: ${fmtNum(c.speed)} уз, порывы ${fmtNum(c.gust)}` : `Факт в точке: ${fmtNum(t.speed)} уз, порывы ${fmtNum(t.gust)}`,
-              `Пролив шириной 1 км — ${fmtNum(1 / v.res, 2)} ячейки`,
-              c && c.land && !Bay.isLand(p.x, p.y) ? 'Яхта на воде, но для модели эта ячейка — суша: трение и ветер как на берегу.' : null,
+              `Пролив шириной 1 км занимает ${fmtNum(1 / v.res, 2)} ячейки`,
+              c && c.land && !Bay.isLand(p.x, p.y) ? 'Яхта на воде, но модель считает эту ячейку сушей: трение и ветер как на берегу.' : null,
             ];
           },
         };
@@ -371,8 +393,8 @@
       after(view) {
         const lead = view.v.lead, use = Schemes.modelsFor(lead);
         const why = lead <= 2 ? 'Региональные модели ещё считают этот срок и видят бухту, мысы и проливы. Глобальные берут для общей картины: где циклон и фронт.'
-          : lead <= 5 ? 'Самые подробные региональные модели сюда не достают. ICON-EU с сеткой 7 км и глобальные модели показывают, будет ли фронт, бора или циклон, но местный ветер сглажен.'
-            : 'Достают только глобальные модели. Детали ветра у берега на таком сроке не важны: смотрят, придёт ли циклон или фронт и как сходятся модели между собой.';
+          : lead <= 5 ? 'Самые подробные региональные модели так далеко не считают. ICON-EU с сеткой 7 км и глобальные модели показывают, будет ли фронт, бора или циклон, но местный ветер сглажен.'
+            : 'Так далеко считают только глобальные модели. Детали ветра у берега на таком сроке не важны: смотрят, придёт ли циклон или фронт и как сходятся модели между собой.';
         view.mtext.innerHTML = '';
         view.mtext.append(el('div', { class: 'stage-head' }, `${lead < 1 ? 'Через 6 часов' : lead === 1 ? 'Через сутки' : lead === 7 ? 'Через неделю' : `Через ${lead} суток`}: ${use.join(', ')}`), el('div', {}, why));
       },
@@ -380,7 +402,7 @@
     {
       id: 't11', num: 11, short: 'Ансамбль', title: 'Ансамбль и разброс', underMap: true,
       controls: [
-        { id: 'scn', type: 'seg', label: 'Ситуация', options: [['summer', 'Антициклон'], ['front', 'Фронт'], ['bora', 'Бора']] },
+        { id: 'scn', type: 'seg', label: 'Ситуация', options: [['summer', 'Летний день'], ['front', 'Холодный фронт'], ['bora', 'Бора']] },
         { id: 'hour', type: 'range', label: 'Время на карте', min: 0, max: 42, step: 0.5, fmt: 'time' },
         { id: 'truth', type: 'toggle', label: 'Показать факт' },
         { id: 'reseed', type: 'button', label: 'Другой факт' },
@@ -465,9 +487,9 @@
       this.T = T;
       this.v = { ...T.defaults };
       const C = chapter || { title: T.title, lead: '', before: [], after: [], key: [] };
-      const prose = (arr) => (arr && arr.length ? el('div', { class: 'prose' }, ...arr.map((t) => el('p', {}, t))) : null);
+      const prose = (arr) => (arr && arr.length ? el('div', { class: 'prose' }, ...arr.map((t) => el('p', {}, UI.typo(t)))) : null);
       this.root = el('article', { class: `chapter${T.scheme ? ' chapter-scheme' : ''}`, id: `view-${T.id}` });
-      const head = el('header', { class: 'ch-head' }, el('h1', { class: 'ch-title' }, C.title), C.lead ? el('p', { class: 'ch-lead' }, C.lead) : null);
+      const head = el('header', { class: 'ch-head' }, el('h1', { class: 'ch-title' }, C.title), C.lead ? el('p', { class: 'ch-lead' }, UI.typo(C.lead)) : null);
       const fig = el('figure', { class: 'plate' });
       const stage = el('div', { class: 'plate-stage' });
       this.ctlBox = el('div', { class: 'controls' });
@@ -476,8 +498,8 @@
       const under = el('div', { class: 'plate-under' });
       fig.append(stage, this.readout.root, this.ctlBox, this.extraBox, under);
       this.root.append(head, prose(C.before) || '', fig, prose(C.after) || '',
-        C.key && C.key.length ? el('section', { class: 'key', 'aria-label': 'Главное' }, el('h2', {}, 'Главное'), el('ul', {}, ...C.key.map((k) => el('li', {}, k)))) : '',
         T.video ? videoBox(T.video) : '',
+        C.key && C.key.length ? el('section', { class: 'key', 'aria-label': 'Главное' }, el('h2', {}, 'Главное'), el('ul', {}, ...C.key.map((k) => el('li', {}, UI.typo(k))))) : '',
         T.services ? servicesBox() : '');
       root.append(this.root);
       if (T.scheme) {
@@ -485,7 +507,7 @@
         this.section = new Section(stage, { big: true, onPoint: (pt) => { this.v.point = pt; this.schedule(); } });
       } else {
         this.map = new MapView(stage, { yacht: T.yacht, mode: 'yacht', onYacht: () => this.updateReadout() });
-        stage.append(el('div', { class: 'map-foot' }, legendScale(), el('p', { class: 'map-hint' }, MAP_HINT)));
+        stage.append(el('div', { class: 'map-foot' }, T.legend === 'wave' ? waveScale() : legendScale(), el('p', { class: 'map-hint' }, MAP_HINT)));
         this.section = new Section(under);
       }
       if (T.build) (T.underMap ? under : this.extraBox).append(...T.build(this));
@@ -552,5 +574,12 @@
     return box;
   }
 
-  globalThis.Topics = { TOPICS, TopicView, legendScale, modelCells };
+  function waveScale() {
+    const box = el('div', { class: 'scale', 'aria-label': 'Шкала высоты волны, метры' });
+    for (const [h, c] of Draw.WAVE) box.append(el('span', { style: `--c:rgb(${c[0]},${c[1]},${c[2]})` }, fmtNum(h, h % 1 ? 1 : 0)));
+    box.prepend(el('span', { class: 'scale-title' }, 'Волна, м'));
+    return box;
+  }
+
+  globalThis.Topics = { TOPICS, TopicView, legendScale, waveScale, modelCells };
 })();

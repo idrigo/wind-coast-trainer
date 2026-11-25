@@ -1,7 +1,7 @@
 // Shared 2D drawing helpers: speed colour scale, theme tokens, wind barb, arrow.
 (function () {
   const SCALE = [
-    [0, [150, 190, 220]], [5, [110, 190, 226]], [10, [82, 182, 138]], [15, [226, 208, 74]],
+    [0, [222, 231, 237]], [5, [135, 198, 232]], [10, [82, 182, 138]], [15, [226, 208, 74]],
     [20, [240, 160, 48]], [25, [229, 96, 46]], [30, [200, 40, 60]], [40, [150, 30, 120]], [55, [80, 20, 100]],
   ];
   function speedRGB(kn) {
@@ -51,5 +51,15 @@
     ctx.closePath(); ctx.fill(); ctx.restore();
   }
 
-  globalThis.Draw = { speedRGB, speedCSS, css, hexRGB, drawBarb, drawArrow };
+  // Radar and precipitation classes: dBZ threshold and RGBA colour, from light rain to a thunderstorm core.
+  const RADAR = [[12, [150, 220, 130, 150]], [20, [70, 185, 75, 180]], [28, [25, 140, 55, 195]], [35, [240, 215, 45, 215]], [42, [245, 145, 30, 225]], [48, [220, 45, 40, 235]], [55, [170, 25, 150, 240]]];
+  function radarRGBA(z) { let c = null; for (const [z0, rgba] of RADAR) if (z >= z0) c = rgba; return c; }
+  // Wave height scale, metres.
+  const WAVE = [[0, [222, 231, 237]], [0.5, [135, 198, 232]], [1, [82, 182, 138]], [1.5, [226, 208, 74]], [2, [240, 160, 48]], [3, [210, 60, 50]], [4, [150, 30, 120]]];
+  function waveRGB(h) {
+    if (!(h > 0)) return WAVE[0][1];
+    for (let i = 1; i < WAVE.length; i++) if (h <= WAVE[i][0]) { const [a, ca] = WAVE[i - 1], [b, cb] = WAVE[i], t = (h - a) / (b - a); return [0, 1, 2].map((j) => Math.round(ca[j] + (cb[j] - ca[j]) * t)); }
+    return WAVE[WAVE.length - 1][1];
+  }
+  globalThis.Draw = { speedRGB, speedCSS, css, hexRGB, drawBarb, drawArrow, RADAR, radarRGBA, waveRGB, WAVE };
 })();

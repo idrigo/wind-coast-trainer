@@ -1043,7 +1043,7 @@ globalThis.ALLOW_EMBED = true;
   }
   // w: wind at the point (speed, dir from, mods); swell: { h, dir } or null. Heights in metres.
   function at(x, y, w, swell) {
-    if (Bay.isLand(x, y)) return { hs: 0, sea: 0, sw: 0, fetch: 0, shade: 0 };
+    if (Bay.isLand(x, y)) return { hs: 0, sea: 0, sw: 0, fetch: 0, shade: 0, u: 0, v: 0, dir: null };
     let sea = 0, fetch = 0;
     if (w && w.dir != null && w.speed > 1) {
       const f = ray(x, y, w.dir);
@@ -1055,7 +1055,13 @@ globalThis.ALLOW_EMBED = true;
       for (const da of [-12, 0, 12]) if (ray(x, y, swell.dir + da) === Infinity) open++;
       sw = swell.h * (0.12 + (0.88 * open) / 3); // behind land only what bends round it
     }
-    return { hs: Math.hypot(sea, sw), sea, sw, fetch, shade: swell && swell.h > 0 ? 1 - open / 3 : 0 };
+    // Mean direction: the wind sea runs with the wind, the swell keeps its own; weighted by energy (height squared).
+    let u = 0, v = 0;
+    if (sea > 0) { const a = (w.dir + 180) * D2R; u += sea * sea * Math.sin(a); v += sea * sea * Math.cos(a); }
+    if (sw > 0) { const a = (swell.dir + 180) * D2R; u += sw * sw * Math.sin(a); v += sw * sw * Math.cos(a); }
+    const m = Math.hypot(u, v);
+    return { hs: Math.hypot(sea, sw), sea, sw, fetch, shade: swell && swell.h > 0 ? 1 - open / 3 : 0,
+      u: m ? u / m : 0, v: m ? v / m : 0, dir: m ? ((Math.atan2(-u, -v) / D2R) + 360) % 360 : null }; // u, v: where it runs; dir: where from
   }
   globalThis.Wave = { at, ray, windSea };
 })();
@@ -2082,7 +2088,16 @@ globalThis.ALLOW_EMBED = true;
       }
       c.drawImage(this.dark ? this.S.coastD : this.S.coastL, 0, 0);
       // Wind barbs on the water: the staff points to where the wind comes from.
-      if (o.colors !== false && o.barbs !== false) {
+      if (o.arrowFn) { // wave direction: arrows show where the waves run, longer for higher waves
+        const small = this.w && this.w < 560;
+        this.S.arrowPts.forEach(([x, y], idx) => {
+          if (small && idx % 2) return;
+          const a = o.arrowFn(x, y); if (!a || !a.h) return;
+          const px = (x / W) * WW, py = ((H - y) / H) * WH, L = ((0.9 + Math.min(3, a.h) * 0.45) / W) * WW * (small ? 1.5 : 1);
+          Draw.drawArrow(c, px, py, a.u, a.v, L, 'rgba(255,255,255,0.9)', L / 7);
+          Draw.drawArrow(c, px, py, a.u, a.v, L, '#10243a', L / 16);
+        });
+      } else if (o.colors !== false && o.barbs !== false) {
         const small = this.w && this.w < 560, len = ((small ? 2.6 : 1.5) / W) * WW, ink = this.dark || o.night ? '#ffffff' : '#10243a', halo = this.dark || o.night ? 'rgba(10,20,32,0.75)' : 'rgba(255,255,255,0.85)';
         this.S.arrowPts.forEach(([x, y], idx) => {
           if (small && idx % 2) return;
@@ -2553,7 +2568,8 @@ globalThis.ALLOW_EMBED = true;
       const img = this.field.getContext('2d').createImageData(GX, GY), d = img.data;
       for (let j = 0; j < GY; j++) for (let i = 0; i < GX; i++) {
         const x = i * GD, y = H - j * GD, k = j * GX + i, q = k * 4, w = st.wind ? st.wind(x, y) : { u: 0, v: 0, speed: 0 };
-        this.U[k] = w.u; this.V[k] = w.v;
+        const f = st.flow ? st.flow(x, y) : null;
+        this.U[k] = f ? f[0] : w.u; this.V[k] = f ? f[1] : w.v;
         let c;
         if (st.precip) { // rain layer: rain colours on a grey map, as in forecast apps
           const z = st.precip(x, y), r = Draw.radarRGBA(z), a = r ? r[3] / 255 : 0, g = [206, 212, 218];
@@ -2641,6 +2657,15 @@ globalThis.ALLOW_EMBED = true;
         const px = X(st.probe[0]), py = Y(st.probe[1]);
         c.strokeStyle = '#e0621c'; c.lineWidth = 2.5 * dpr; c.beginPath(); c.moveTo(px, py); c.lineTo(px, py - 18 * dpr); c.stroke();
         c.fillStyle = '#e0621c'; c.beginPath(); c.arc(px, py - 18 * dpr, 5 * dpr, 0, Math.PI * 2); c.fill();
+      }
+      if (st.arrows) { // wave direction on a 2.5 km grid over the water
+        for (let y = 1.25; y < H; y += 2.5) for (let x = 1.25; x < W; x += 2.5) {
+          if (Bay.isLand(x, y)) continue;
+          const a = st.arrows(x, y); if (!a || !a.h) continue;
+          const L = (10 + Math.min(3, a.h) * 7) * dpr;
+          Draw.drawArrow(c, X(x), Y(y), a.u, a.v, L, 'rgba(255,255,255,0.9)', 4 * dpr);
+          Draw.drawArrow(c, X(x), Y(y), a.u, a.v, L, ink, 1.6 * dpr);
+        }
       }
       for (const m of st.marks || []) {
         const px = X(m.x), py = Y(m.y);
@@ -4491,10 +4516,10 @@ globalThis.CHAPTERS = {
         const sw = v.swell ? { h: 1.5, dir: 185 } : null, fn = (x, y) => Wind.at(x, y, S);
         return {
           S, fn, title: 'Ветер у яхты',
-          overlays: { colorFn: (x, y) => globalThis.Wave.at(x, y, fn(x, y), sw).hs },
+          overlays: { colorFn: (x, y) => globalThis.Wave.at(x, y, fn(x, y), sw).hs, arrowFn: (x, y) => { const q = globalThis.Wave.at(x, y, fn(x, y), sw); return { u: q.u, v: q.v, h: q.hs }; } },
           extra: (w, p) => {
             const q = globalThis.Wave.at(p.x, p.y, w, sw);
-            return [`Волна ${fmtNum(q.hs, 1)} м`, `Ветровая ${fmtNum(q.sea, 1)} м, разгон ${q.fetch >= 150 ? 'с открытого моря' : `${fmtNum(q.fetch)} км`}`, ...(sw ? [`Зыбь ${fmtNum(q.sw, 1)} м${q.shade > 0.5 ? ', тень берега' : ''}`] : [])];
+            return [`Волна ${fmtNum(q.hs, 1)} м${q.dir != null ? `, идёт с ${Wind.compass(q.dir)}` : ''}`, `Ветровая ${fmtNum(q.sea, 1)} м, разгон ${q.fetch >= 150 ? 'с открытого моря' : `${fmtNum(q.fetch)} км`}`, ...(sw ? [`Зыбь ${fmtNum(q.sw, 1)} м${q.shade > 0.5 ? ', тень берега' : ''}`] : [])];
           },
         };
       },
@@ -4864,6 +4889,7 @@ globalThis.CHAPTERS = {
   // Swell from the open sea in each scenario, metres and direction it comes from.
   const SWELL = { summer: null, front: { h: 1.5, dir: 220 }, night: { h: 1.3, dir: 185 } };
   const waveAt = (scn, x, y, w) => globalThis.Wave.at(x, y, w, SWELL[scn]).hs;
+  const waveFull = (scn, x, y, w) => globalThis.Wave.at(x, y, w, SWELL[scn]);
   const risksFor = (id) => RISKS.filter((R) => !R.night || id === 'night');
   const mag = (v) => Math.hypot(v[0], v[1]);
   // Whether a risk acts on the yacht at a point of the passage, from the wind there.
@@ -5097,6 +5123,8 @@ globalThis.CHAPTERS = {
         wind, legend: this.layer,
         precip: P ? (x, y) => interp(P, (c) => c.z, x, y) : null,
         color: this.layer === 'wave' ? (x, y) => Draw.waveRGB(waveAt(sc, x, y, wind(x, y))) : null,
+        arrows: this.layer === 'wave' ? (x, y) => { const q = waveFull(sc, x, y, wind(x, y)); return { u: q.u, v: q.v, h: q.hs }; } : null,
+        flow: this.layer === 'wave' ? (x, y) => { const q = waveFull(sc, x, y, wind(x, y)); return [q.u * q.hs * 8, q.v * q.hs * 8]; } : null,
         route: this.st.scn === 'night' ? null : ROUTE, probe: this.probe,
         marks: [...(this.st.scn === 'night' ? ANCH.map((a) => ({ x: a.x, y: a.y, text: a.id, on: this.st.anchor === a.id })) : []), ...(this.riskMarks() || [])],
         tag: `${res >= 5 ? 'Глобальная модель 9 км' : 'Региональная модель 2 км'}, прогон ${this.runName()}. На карте ${fmtTime(hour)}`,
@@ -5284,7 +5312,7 @@ globalThis.CHAPTERS = {
       }
       const cols = hours.map((t, i) => {
         const w = this.modelWind(res, p[0], p[1], t), S = Ens.state(scn, t, this.runP(), res);
-        return { t, w, p90: this._ens.p90[i], bf: Wind.beaufort(w.speed), pr: Wind.pressure(p[0], p[1], S), ts: this._ts[i], hs: waveAt(scn.id, p[0], p[1], w) };
+        return { t, w, p90: this._ens.p90[i], bf: Wind.beaufort(w.speed), pr: Wind.pressure(p[0], p[1], S), ts: this._ts[i], hs: waveAt(scn.id, p[0], p[1], w), wdir: waveFull(scn.id, p[0], p[1], w).dir };
       });
       const cell = (v, kn) => { const c = Draw.speedRGB(kn); return el('td', { style: `background:rgb(${c[0]},${c[1]},${c[2]});color:${kn >= 25 ? '#fff' : '#10243a'}` }, v); };
       const row = (name, f) => el('tr', {}, el('th', { scope: 'row' }, name), ...cols.map(f));
@@ -5294,6 +5322,7 @@ globalThis.CHAPTERS = {
         row(`Средний, уз (${res} км)`, (c) => cell(fmtNum(c.w.speed), c.w.speed)),
         row('Порывы, уз', (c) => cell(fmtNum(c.w.gust), c.w.gust)),
         row('P90 ансамбля, уз', (c) => cell(fmtNum(c.p90), c.p90)),
+        row('Волна, откуда', (c) => el('td', {}, c.wdir == null ? '·' : el('small', {}, Wind.compass(c.wdir)))),
         row('Волна, м', (c) => el('td', { style: (() => { const q = Draw.waveRGB(c.hs); return `background:rgb(${q[0]},${q[1]},${q[2]})`; })() }, fmtNum(c.hs, 1))),
         row('Баллы', (c) => el('td', {}, String(c.bf))),
         row('Давление, гПа', (c) => el('td', {}, fmtNum(c.pr))),
